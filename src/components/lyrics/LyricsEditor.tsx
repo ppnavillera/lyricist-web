@@ -8,8 +8,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { SongStructure, LyricsProject } from '@/types';
 import { useProjectStore } from '@/lib/store';
 import SyllableAdjuster from './SyllableAdjuster';
-import AiLyricsGenerator from './AiLyricsGenerator';
-import LyricsTextEditor from './LyricsTextEditor';
+import SimpleLyricsEditor from './SimpleLyricsEditor';
 import EditableTitle from '@/components/common/EditableTitle';
 
 interface LyricsEditorProps {
@@ -117,18 +116,12 @@ export default function LyricsEditor({ structure, structureIndex, project }: Lyr
               onComplete={handleSyllableComplete}
             />
           ) : (
-            <div className="space-y-6">
-              <AiLyricsGenerator
-                structure={structure}
-                project={project}
-              />
-              
-              <LyricsTextEditor
-                structure={structure}
-                onComplete={handleLyricsComplete}
-                isLastStructure={isLastStructure}
-              />
-            </div>
+            <SimpleLyricsEditor
+              structure={structure}
+              project={project}
+              onComplete={handleLyricsComplete}
+              isLastStructure={isLastStructure}
+            />
           )}
         </div>
       </div>
