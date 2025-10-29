@@ -8,6 +8,9 @@ export interface MidiAnalysis {
   structure: SongStructure[];
   totalSyllables: number;
   createdAt: Date;
+  // API 연동 필드
+  midiId?: number;
+  apiAnalysis?: import('./api').MidiAnalysisResponse;
 }
 
 // API Response types
@@ -69,29 +72,61 @@ export interface ProjectTheme {
   customStyle?: string;
 }
 
-export type Genre = 
-  | '발라드' 
-  | '힙합' 
-  | '록' 
-  | '팝' 
-  | 'R&B' 
-  | '인디' 
-  | '댄스' 
+// API에서 사용하는 영문 타입
+export type ApiGenre = 'BALLAD' | 'HIP_HOP' | 'ROCK' | 'POP' | 'RNB' | 'INDIE' | 'DANCE' | 'FOLK';
+export type ApiMood = 'HAPPY' | 'SAD' | 'EXCITING' | 'CALM' | 'ROMANTIC' | 'GLOOMY' | 'HOPEFUL' | 'NOSTALGIC' | 'EMOTIONAL' | 'DYNAMIC' | 'DREAMY' | 'INTENSE';
+
+// UI에서 표시하는 한글 타입
+export type Genre =
+  | '발라드'
+  | '힙합'
+  | '록'
+  | '팝'
+  | 'R&B'
+  | '인디'
+  | '댄스'
   | '포크';
 
-export type Mood = 
-  | '행복한' 
-  | '슬픈' 
-  | '신나는' 
-  | '차분한' 
-  | '로맨틱한' 
-  | '우울한' 
-  | '희망적인' 
-  | '그리운' 
-  | '감성적인' 
-  | '역동적인' 
-  | '몽환적인' 
+export type Mood =
+  | '행복한'
+  | '슬픈'
+  | '신나는'
+  | '차분한'
+  | '로맨틱한'
+  | '우울한'
+  | '희망적인'
+  | '그리운'
+  | '감성적인'
+  | '역동적인'
+  | '몽환적인'
   | '강렬한';
+
+// 장르/무드 매핑
+export const genreMapping: Record<Genre, ApiGenre> = {
+  '발라드': 'BALLAD',
+  '힙합': 'HIP_HOP',
+  '록': 'ROCK',
+  '팝': 'POP',
+  'R&B': 'RNB',
+  '인디': 'INDIE',
+  '댄스': 'DANCE',
+  '포크': 'FOLK',
+};
+
+export const moodMapping: Record<Mood, ApiMood> = {
+  '행복한': 'HAPPY',
+  '슬픈': 'SAD',
+  '신나는': 'EXCITING',
+  '차분한': 'CALM',
+  '로맨틱한': 'ROMANTIC',
+  '우울한': 'GLOOMY',
+  '희망적인': 'HOPEFUL',
+  '그리운': 'NOSTALGIC',
+  '감성적인': 'EMOTIONAL',
+  '역동적인': 'DYNAMIC',
+  '몽환적인': 'DREAMY',
+  '강렬한': 'INTENSE',
+};
 
 export interface LyricsProject {
   id: string;
@@ -103,6 +138,9 @@ export interface LyricsProject {
   isCompleted: boolean;
   completedAt?: Date;
   updatedAt: Date;
+  // API 연동 필드
+  apiMidiId?: number;
+  apiLyricsId?: number;
 }
 
 export interface LyricsGenerationRequest {

@@ -1,9 +1,15 @@
 import { MidiAnalyzerResponse } from "@/types";
+import { uploadAndAnalyzeMidi, generateLyricsFromApi } from "./api-integration";
+import type { ProjectTheme } from "@/types";
+
+// 레거시 호환성을 위한 래퍼 함수들
+// 실제 API 호출은 api-integration.ts를 통해 이루어짐
 
 export async function analyzeMidiFile(
   file: File,
   barsPerPhrase: number = 4
 ): Promise<MidiAnalyzerResponse> {
+  // 기존 로컬 API 사용 (폴백)
   const formData = new FormData();
   formData.append("file", file);
   formData.append("bars_per_phrase", barsPerPhrase.toString());
@@ -29,6 +35,7 @@ export async function generateLyrics(
     description?: string;
   }
 ): Promise<string> {
+  // 기존 로컬 API 사용 (폴백)
   const response = await fetch("/api/lyrics/generate", {
     method: "POST",
     headers: {
@@ -48,3 +55,6 @@ export async function generateLyrics(
   const data = await response.json();
   return data.lyrics;
 }
+
+// 새로운 백엔드 API 사용 함수들
+export { uploadAndAnalyzeMidi, generateLyricsFromApi } from "./api-integration";
