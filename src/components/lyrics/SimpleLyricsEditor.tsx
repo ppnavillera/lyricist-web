@@ -1,26 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sparkles, Loader2, Check, Edit3 } from 'lucide-react';
+import { Sparkles, Loader2, Check, Edit3, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { SongStructure, LyricsProject } from '@/types';
 import { countSyllables } from '@/lib/utils';
+import { generateLyrics } from '@/lib/api';
 
 interface SimpleLyricsEditorProps {
   structure: SongStructure;
   project: LyricsProject;
   onComplete: (lyrics: string) => void;
+  onBackToSyllable?: () => void;
   isLastStructure: boolean;
 }
 
-export default function SimpleLyricsEditor({ 
-  structure, 
-  project, 
-  onComplete, 
-  isLastStructure 
+export default function SimpleLyricsEditor({
+  structure,
+  project,
+  onComplete,
+  onBackToSyllable,
+  isLastStructure
 }: SimpleLyricsEditorProps) {
   const [linesText, setLinesText] = useState<string[]>(() => {
     if (structure.lyrics) {
@@ -45,64 +48,29 @@ export default function SimpleLyricsEditor({
     }
 
     setGeneratingLineIndex(lineIndex);
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
       const line = structure.lineStructure[lineIndex];
       const targetSyllables = line.syllables;
       const previousLines = linesText.slice(0, lineIndex).filter(text => text.trim());
-      
-      const generatedText = generateSingleLine(lineIndex, targetSyllables, previousLines);
+
+      // Call Gemini API
+      const generatedText = await generateLyrics(targetSyllables, {
+        previousLines,
+        theme: project.theme,
+        description: line.description,
+      });
+
       updateLineText(lineIndex, generatedText);
-      
+
     } catch (error) {
       console.error('Generation error:', error);
+      alert('가사 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setGeneratingLineIndex(null);
     }
   };
 
-  const generateSingleLine = (lineIndex: number, targetSyllables: number, previousLines: string[]) => {
-    const baseTemplates = [
-      ['햇살이 비치는 창가에서', '너의 목소리가 들려와', '따뜻한 마음으로 안아줘'],
-      ['시간이 흘러도 변하지 않는', '우리의 약속을 기억해', '어둠이 와도 두렵지 않아'],
-      ['바람에 흩날리는 꽃잎처럼', '가벼운 마음으로 떠나가', '새로운 시작을 향해서'],
-      ['하늘을 바라보며 걸어가', '꿈을 향해 달려가며', '희망찬 미래를 그려봐']
-    ];
-    
-    let templates = baseTemplates[lineIndex % baseTemplates.length];
-    
-    if (previousLines.length > 0) {
-      const lastLine = previousLines[previousLines.length - 1];
-      
-      if (lastLine.includes('햇살') || lastLine.includes('밝')) {
-        templates = ['따뜻한 빛이 감싸주네', '환한 웃음이 번져가', '행복이 가득 차올라'];
-      } else if (lastLine.includes('시간') || lastLine.includes('흘러')) {
-        templates = ['지나간 날들을 생각해', '추억이 스며들어와', '영원히 기억할 순간'];
-      } else if (lastLine.includes('바람') || lastLine.includes('흩날')) {
-        templates = ['자유롭게 날아오르며', '구름처럼 떠다니며', '하늘 높이 올라가'];
-      }
-    }
-    
-    const template = templates[Math.floor(Math.random() * templates.length)];
-    const currentLength = template.replace(/\s/g, '').length;
-    
-    if (currentLength === targetSyllables) {
-      return template;
-    } else if (currentLength > targetSyllables) {
-      return template.substring(0, targetSyllables);
-    } else {
-      const diff = targetSyllables - currentLength;
-      const naturalEndings = ['요', '네요', '어요', '죠', '해요'];
-      
-      if (diff <= 3) {
-        return template + (naturalEndings[diff - 1] || '');
-      } else {
-        return '정말 ' + template;
-      }
-    }
-  };
 
   const handleComplete = () => {
     const completeLyrics = linesText.filter(line => line.trim()).join('\n');
@@ -269,16 +237,28 @@ export default function SimpleLyricsEditor({
           </div>
         )}
 
-        {/* Complete Button */}
-        <Button 
-          onClick={handleComplete}
-          disabled={!canComplete}
-          size="lg"
-          className="w-full"
-        >
-          <Check className="h-4 w-4 mr-2" />
-          {isLastStructure ? '프로젝트 완료하기' : '다음 파트로 이동'}
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          {onBackToSyllable && (
+            <Button
+              variant="outline"
+              onClick={onBackToSyllable}
+              size="lg"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              줄 수 다시 설정
+            </Button>
+          )}
+          <Button
+            onClick={handleComplete}
+            disabled={!canComplete}
+            size="lg"
+            className="flex-1"
+          >
+            <Check className="h-4 w-4 mr-2" />
+            {isLastStructure ? '프로젝트 완료하기' : '다음 파트로 이동'}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

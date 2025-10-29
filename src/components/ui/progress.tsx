@@ -14,15 +14,18 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       <div
         ref={ref}
         className={cn(
-          "relative h-2 w-full overflow-hidden rounded-full bg-secondary",
+          "relative h-3 w-full overflow-hidden rounded-full bg-secondary/50 backdrop-blur-sm",
           className
         )}
         {...props}
       >
         <div
-          className="h-full w-full flex-1 bg-primary transition-all duration-300"
+          className="h-full w-full flex-1 progress-gradient transition-all duration-500 ease-out relative shadow-lg"
           style={{ transform: `translateX(-${100 - percentage}%)` }}
-        />
+        >
+          {/* 반짝이는 효과 */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+        </div>
       </div>
     );
   }

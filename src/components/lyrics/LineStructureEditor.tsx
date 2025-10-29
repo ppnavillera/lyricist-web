@@ -27,13 +27,11 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     if (initialLineStructure && initialLineStructure.length > 0) {
       return initialLineStructure;
     }
-    // Default: 4 equal lines
-    const syllablesPerLine = Math.floor(totalSyllables / 4);
-    const remainder = totalSyllables % 4;
-    return Array.from({ length: 4 }, (_, i) => ({
-      syllables: syllablesPerLine + (i < remainder ? 1 : 0),
-      description: `${i + 1}번째 줄`,
-    }));
+    // Default: 1 line with all syllables
+    return [{
+      syllables: totalSyllables,
+      description: `1번째 줄`,
+    }];
   });
 
   const currentTotal = lines.reduce((sum, line) => sum + line.syllables, 0);
@@ -60,11 +58,22 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
 
   const addLine = () => {
     if (lines.length >= 10) return;
-    
-    setLines([...lines, { 
-      syllables: 1, 
-      description: `${lines.length + 1}번째 줄` 
-    }]);
+
+    // Take 1 syllable from the last line
+    const newLines = [...lines];
+    if (newLines[newLines.length - 1].syllables > 1) {
+      newLines[newLines.length - 1] = {
+        ...newLines[newLines.length - 1],
+        syllables: newLines[newLines.length - 1].syllables - 1
+      };
+    }
+
+    newLines.push({
+      syllables: 1,
+      description: `${lines.length + 1}번째 줄`
+    });
+
+    setLines(newLines);
   };
 
   const removeLine = (index: number) => {

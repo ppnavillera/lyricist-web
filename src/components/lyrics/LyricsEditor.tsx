@@ -71,6 +71,10 @@ export default function LyricsEditor({ structure, structureIndex, project }: Lyr
     updateStructureName(structure.id, newName);
   };
 
+  const handleBackToSyllable = () => {
+    setCurrentStep('syllable');
+  };
+
   const canGoPrevious = structureIndex > 0;
   const isLastStructure = structureIndex === project.midiAnalysis.structure.length - 1;
 
@@ -120,6 +124,7 @@ export default function LyricsEditor({ structure, structureIndex, project }: Lyr
               structure={structure}
               project={project}
               onComplete={handleLyricsComplete}
+              onBackToSyllable={handleBackToSyllable}
               isLastStructure={isLastStructure}
             />
           )}

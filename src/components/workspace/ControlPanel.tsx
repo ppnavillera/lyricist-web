@@ -1,60 +1,35 @@
 'use client';
 
-import { Play, Pause, RotateCcw, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Info } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useProjectStore } from '@/lib/store';
-import { useState } from 'react';
+import MidiPlayer from '@/components/midi/MidiPlayer';
 
 export default function ControlPanel() {
   const { currentProject } = useProjectStore();
-  const [isPlaying, setIsPlaying] = useState(false);
 
   if (!currentProject) return null;
 
   const currentStructure = currentProject.midiAnalysis.structure[currentProject.currentStructureIndex];
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    // In a real app, this would control MIDI playback
-  };
-
   return (
     <div className="h-full bg-card flex flex-col">
       {/* MIDI Player */}
       <div className="p-4 border-b border-border">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm">MIDI 플레이어</CardTitle>
-            <CardDescription className="text-xs">
-              {currentStructure?.name} 미리듣기
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-center space-x-2">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={handlePlayPause}
-              >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              </Button>
-              <Button variant="outline" size="icon">
-                <RotateCcw className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="w-full bg-secondary h-2 rounded-full">
-              <div className="bg-primary h-2 rounded-full w-0 transition-all duration-300"></div>
-            </div>
-            
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0:00</span>
-              <span>0:30</span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2">
+          <div>
+            <h3 className="text-sm font-medium">MIDI 플레이어</h3>
+            <p className="text-xs text-muted-foreground">
+              {currentStructure?.name} 구간 재생
+            </p>
+          </div>
+          <MidiPlayer
+            midiUrl={currentProject.midiFileUrl}
+            startTime={currentStructure?.startTime}
+            endTime={currentStructure?.endTime}
+          />
+        </div>
       </div>
 
       {/* Project Info */}

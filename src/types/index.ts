@@ -10,6 +10,38 @@ export interface MidiAnalysis {
   createdAt: Date;
 }
 
+// API Response types
+export interface MidiAnalyzerMetadata {
+  midi_file: string;
+  tempo_bpm: number;
+  time_signature: string;
+  total_duration_seconds: number;
+  bars_per_phrase: number;
+  total_phrases: number;
+}
+
+export interface SectionSummary {
+  total_syllables: number;
+  phrase_count: number;
+}
+
+export interface LyricsGenerationTask {
+  section: string;
+  target_syllables: number;
+  time_range: {
+    start: number;
+    end: number;
+  };
+  bars: string;
+}
+
+export interface MidiAnalyzerResponse {
+  metadata: MidiAnalyzerMetadata;
+  syllable_requirements: Record<string, number>;
+  section_summary: Record<string, SectionSummary>;
+  lyrics_generation_tasks: LyricsGenerationTask[];
+}
+
 export interface LineStructure {
   syllables: number;
   description?: string;
@@ -65,6 +97,7 @@ export interface LyricsProject {
   id: string;
   name: string;
   midiAnalysis: MidiAnalysis;
+  midiFileUrl?: string; // URL to stored MIDI file for playback
   theme: ProjectTheme;
   currentStructureIndex: number;
   isCompleted: boolean;
