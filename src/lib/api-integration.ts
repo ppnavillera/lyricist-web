@@ -67,7 +67,7 @@ export function convertApiAnalysisToMidiAnalysis(
 
   // 기본 구조 생성 (beats 정보를 기반으로)
   // 실제로는 더 복잡한 로직이 필요할 수 있음
-  const structure = [];
+  const structure: import('@/types').SongStructure[] = [];
 
   return {
     id: midiId.toString(),
@@ -162,7 +162,7 @@ export async function fetchLyricsList(midiId: number, page: number = 0, size: nu
 export function convertBackendAnalysisToLegacyFormat(
   analysisResponse: MidiAnalysisResponse,
   fileName: string
-): any {
+): never {
   // TODO: 실제 구현 필요
   // 백엔드 API 응답 구조에 맞춰 변환 로직 작성
   /*

@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useProjectStore } from '@/lib/store';
 import LyricsEditor from '@/components/lyrics/LyricsEditor';
 
@@ -15,9 +16,9 @@ export default function WorkspacePage() {
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">프로젝트를 불러올 수 없습니다</h2>
           <p className="text-muted-foreground">홈페이지로 돌아가서 새로운 프로젝트를 시작하세요.</p>
-          <a href="/" className="mt-4 inline-block text-primary hover:underline">
+          <Link href="/" className="mt-4 inline-block text-primary hover:underline">
             홈으로 이동
-          </a>
+          </Link>
         </div>
       </div>
     );

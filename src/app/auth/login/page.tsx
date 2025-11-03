@@ -4,10 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { Music } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+function LoginContent() {
   const { login, user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -100,5 +100,17 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

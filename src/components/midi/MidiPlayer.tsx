@@ -26,8 +26,8 @@ export default function MidiPlayer({ midiFile, midiUrl, startTime, endTime }: Mi
   const synthRef = useRef<Tone.PolySynth | null>(null);
   const midiDataRef = useRef<Midi | null>(null);
   const partRef = useRef<Tone.Part | null>(null);
-  const animationFrameRef = useRef<number>();
-  const loopTimeoutRef = useRef<NodeJS.Timeout>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  const loopTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Initialize synth
   useEffect(() => {
