@@ -153,3 +153,151 @@ export async function fetchLyricsList(midiId: number, page: number = 0, size: nu
     throw error;
   }
 }
+
+// TODO: 백엔드 분석 응답을 레거시 MidiAnalyzerResponse 형식으로 변환
+/**
+ * 백엔드 분석 결과를 기존 MidiAnalyzerResponse 형식으로 변환
+ * analyzeMidiFile 함수에서 사용
+ */
+export function convertBackendAnalysisToLegacyFormat(
+  analysisResponse: MidiAnalysisResponse,
+  fileName: string
+): any {
+  // TODO: 실제 구현 필요
+  // 백엔드 API 응답 구조에 맞춰 변환 로직 작성
+  /*
+  return {
+    metadata: {
+      midi_file: fileName,
+      total_duration_seconds: analysisResponse.durationMs / 1000,
+      tempo_bpm: analysisResponse.tempoSummary.bpmAverage,
+      time_signature: `${analysisResponse.timeSignatures[0]?.numerator || 4}/${analysisResponse.timeSignatures[0]?.denominator || 4}`,
+    },
+    lyrics_generation_tasks: analysisResponse.beats.map((beat, index) => ({
+      section: `Section ${index + 1}`,
+      time_range: {
+        start: beat.timeMs / 1000,
+        end: (analysisResponse.beats[index + 1]?.timeMs || analysisResponse.durationMs) / 1000,
+      },
+      target_syllables: 8, // TODO: 실제 계산 로직 필요
+    })),
+  };
+  */
+
+  throw new Error('TODO: convertBackendAnalysisToLegacyFormat 구현 필요');
+}
+
+// TODO: MIDI 분석 관련 헬퍼 함수들
+/**
+ * MIDI 분석 조회
+ */
+export async function getMidiAnalysis(midiId: number): Promise<MidiAnalysisResponse> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    return await apiClient.analysis.get(midiId);
+  } catch (error) {
+    console.error('MIDI 분석 조회 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: getMidiAnalysis 구현 필요');
+}
+
+/**
+ * MIDI 분석 생성 (이미 업로드된 MIDI 파일에 대해)
+ */
+export async function createMidiAnalysis(midiId: number): Promise<MidiAnalysisResponse> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    return await apiClient.analysis.create(midiId);
+  } catch (error) {
+    console.error('MIDI 분석 생성 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: createMidiAnalysis 구현 필요');
+}
+
+/**
+ * MIDI 분석 삭제
+ */
+export async function deleteMidiAnalysis(midiId: number): Promise<void> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    await apiClient.analysis.delete(midiId);
+  } catch (error) {
+    console.error('MIDI 분석 삭제 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: deleteMidiAnalysis 구현 필요');
+}
+
+// TODO: 가사 조회 관련 헬퍼 함수들
+/**
+ * 특정 가사 상세 조회
+ */
+export async function getLyricsById(lyricsId: number): Promise<{ summary: { lyricsId: number; generatedAt: string }; text: string }> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    return await apiClient.lyrics.getById(lyricsId);
+  } catch (error) {
+    console.error('가사 조회 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: getLyricsById 구현 필요');
+}
+
+/**
+ * 가사 삭제
+ */
+export async function deleteLyrics(lyricsId: number): Promise<void> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    await apiClient.lyrics.delete(lyricsId);
+  } catch (error) {
+    console.error('가사 삭제 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: deleteLyrics 구현 필요');
+}
+
+// TODO: MIDI 파일 조회 관련 헬퍼 함수들
+/**
+ * 특정 MIDI 파일 상세 조회
+ */
+export async function getMidiById(midiId: number): Promise<{ summary: { lyricsId: number; generatedAt: string }; text: string }> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    return await apiClient.midi.getById(midiId);
+  } catch (error) {
+    console.error('MIDI 파일 조회 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: getMidiById 구현 필요');
+}
+
+/**
+ * MIDI 파일 삭제
+ */
+export async function deleteMidi(midiId: number): Promise<void> {
+  // TODO: 백엔드 API 연동 시 주석 해제
+  /*
+  try {
+    await apiClient.midi.delete(midiId);
+  } catch (error) {
+    console.error('MIDI 파일 삭제 오류:', error);
+    throw error;
+  }
+  */
+  throw new Error('TODO: deleteMidi 구현 필요');
+}

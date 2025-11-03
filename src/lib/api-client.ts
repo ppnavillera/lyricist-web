@@ -1,5 +1,6 @@
 // API 클라이언트 - 백엔드 API와 통신
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+// 빈 문자열 = Next.js 프록시 사용 (CORS 회피)
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 // API 에러 타입
 export interface ApiError {
@@ -96,7 +97,12 @@ class ApiClient {
 
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        return response.json();
+        const json = await response.json();
+        // 백엔드 응답이 { success, data, timestamp } 형식인 경우 data 추출
+        if (json.success && json.data !== undefined) {
+          return json.data as T;
+        }
+        return json as T;
       }
 
       return {} as T;

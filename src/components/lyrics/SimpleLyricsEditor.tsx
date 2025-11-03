@@ -31,8 +31,9 @@ export default function SimpleLyricsEditor({
     }
     return Array(structure.lineStructure?.length || 4).fill('');
   });
-  
+
   const [generatingLineIndex, setGeneratingLineIndex] = useState<number | null>(null);
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
   const targetSyllableCount = structure.adjustedSyllableCount || structure.syllableCount;
 
@@ -69,6 +70,56 @@ export default function SimpleLyricsEditor({
     } finally {
       setGeneratingLineIndex(null);
     }
+  };
+
+  // 전체 가사를 순차적으로 자동 생성
+  const generateAllLines = async () => {
+    if (!structure.lineStructure || structure.lineStructure.length === 0) {
+      return;
+    }
+
+    setIsGeneratingAll(true);
+
+    try {
+      const totalLines = structure.lineStructure.length;
+      const newLinesText = [...linesText];
+
+      for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
+        // 현재 줄 생성 중 표시
+        setGeneratingLineIndex(lineIndex);
+
+        const line = structure.lineStructure[lineIndex];
+        const targetSyllables = line.syllables;
+        const previousLines = newLinesText.slice(0, lineIndex).filter(text => text.trim());
+
+        // AI 생성 (실제 Gemini API 호출)
+        const generatedText = await generateLyrics(targetSyllables, {
+          previousLines,
+          theme: project.theme,
+          description: line.description,
+        });
+
+        // 생성된 가사를 배열에 추가
+        newLinesText[lineIndex] = generatedText;
+        setLinesText([...newLinesText]);
+
+        // 잠시 대기 (사용자가 진행 상황을 볼 수 있도록)
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
+    } catch (error) {
+      console.error('전체 생성 오류:', error);
+      alert('가사 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setGeneratingLineIndex(null);
+      setIsGeneratingAll(false);
+    }
+  };
+
+  // 전체 생성 취소
+  const cancelGenerateAll = () => {
+    setIsGeneratingAll(false);
+    setGeneratingLineIndex(null);
   };
 
 
@@ -163,8 +214,51 @@ export default function SimpleLyricsEditor({
         {/* Line-by-line Editor */}
         {structure.lineStructure && structure.lineStructure.length > 0 && (
           <div className="space-y-4">
-            <h4 className="font-medium">줄별 가사 제작</h4>
-            
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">줄별 가사 제작</h4>
+              {isGeneratingAll ? (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={cancelGenerateAll}
+                >
+                  생성 취소
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={generateAllLines}
+                  disabled={isGeneratingAll}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  전체 자동 생성
+                </Button>
+              )}
+            </div>
+
+            {/* 진행 상태 표시 */}
+            {isGeneratingAll && generatingLineIndex !== null && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {generatingLineIndex + 1}/{structure.lineStructure!.length} 줄 생성 중...
+                    </p>
+                    <div className="w-full bg-muted rounded-full h-2 mt-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{
+                          width: `${((generatingLineIndex + 1) / structure.lineStructure!.length) * 100}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {structure.lineStructure.map((line, lineIndex) => {
               const currentLineSyllables = countSyllables(linesText[lineIndex] || '');
               const targetLineSyllables = line.syllables;
@@ -189,7 +283,7 @@ export default function SimpleLyricsEditor({
                           size="sm"
                           variant="outline"
                           onClick={() => generateLineText(lineIndex)}
-                          disabled={generatingLineIndex === lineIndex}
+                          disabled={generatingLineIndex === lineIndex || isGeneratingAll}
                         >
                           {generatingLineIndex === lineIndex ? (
                             <>

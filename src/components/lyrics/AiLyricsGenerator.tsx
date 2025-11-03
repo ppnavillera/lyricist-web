@@ -26,6 +26,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
   });
   const [generatingLineIndex, setGeneratingLineIndex] = useState<number | null>(null);
   const [lineOptions, setLineOptions] = useState<{[lineIndex: number]: string[]}>({});
+  const [isGeneratingAll, setIsGeneratingAll] = useState(false);
   const { updateStructureLyrics } = useProjectStore();
 
   const targetSyllableCount = structure.adjustedSyllableCount || structure.syllableCount;
@@ -68,13 +69,66 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
 
   const selectLineOption = (lineIndex: number, selectedOption: string) => {
     updateLineText(lineIndex, selectedOption);
-    
+
     // Remove options for this line
     setLineOptions(prev => {
       const newOptions = { ...prev };
       delete newOptions[lineIndex];
       return newOptions;
     });
+  };
+
+  // 전체 가사를 순차적으로 자동 생성
+  const generateAllLines = async () => {
+    if (!structure.lineStructure || structure.lineStructure.length === 0) {
+      return;
+    }
+
+    setIsGeneratingAll(true);
+
+    try {
+      const totalLines = structure.lineStructure.length;
+      const newLinesText = [...linesText];
+
+      for (let lineIndex = 0; lineIndex < totalLines; lineIndex++) {
+        // 현재 줄 생성 중 표시
+        setGeneratingLineIndex(lineIndex);
+
+        const line = structure.lineStructure[lineIndex];
+        const targetSyllables = line.syllables;
+        const previousLines = newLinesText.slice(0, lineIndex).filter(text => text.trim());
+
+        // AI 생성 (실제 API 호출)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // 첫 번째 옵션을 자동으로 선택
+        const options = generateSingleLineOptions(lineIndex, targetSyllables, previousLines);
+        const selectedLine = options[0]; // 첫 번째 옵션 자동 선택
+
+        // 생성된 가사를 배열에 추가
+        newLinesText[lineIndex] = selectedLine;
+        setLinesText([...newLinesText]);
+
+        // 잠시 대기 (사용자가 진행 상황을 볼 수 있도록)
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
+      // 모든 줄 생성 완료 후 자동 저장
+      const completeLyrics = newLinesText.filter(line => line.trim()).join('\n');
+      updateStructureLyrics(structure.id, completeLyrics);
+
+    } catch (error) {
+      console.error('전체 생성 오류:', error);
+    } finally {
+      setGeneratingLineIndex(null);
+      setIsGeneratingAll(false);
+    }
+  };
+
+  // 전체 생성 취소
+  const cancelGenerateAll = () => {
+    setIsGeneratingAll(false);
+    setGeneratingLineIndex(null);
   };
 
   const saveAllLines = () => {
@@ -200,8 +254,51 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
         {/* Line-by-line Editor */}
         {structure.lineStructure && structure.lineStructure.length > 0 && (
           <div className="space-y-4">
-            <h4 className="font-medium">줄별 가사 편집</h4>
-            
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium">줄별 가사 편집</h4>
+              {isGeneratingAll ? (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={cancelGenerateAll}
+                >
+                  생성 취소
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={generateAllLines}
+                  disabled={isGeneratingAll}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  전체 자동 생성
+                </Button>
+              )}
+            </div>
+
+            {/* 진행 상태 표시 */}
+            {isGeneratingAll && generatingLineIndex !== null && (
+              <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {generatingLineIndex + 1}/{structure.lineStructure!.length} 줄 생성 중...
+                    </p>
+                    <div className="w-full bg-muted rounded-full h-2 mt-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{
+                          width: `${((generatingLineIndex + 1) / structure.lineStructure!.length) * 100}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {structure.lineStructure.map((line, lineIndex) => (
               <Card key={lineIndex} className="border-l-4 border-l-primary/20">
                 <CardHeader className="pb-3">
@@ -214,7 +311,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                         size="sm"
                         variant="outline"
                         onClick={() => generateLineOptions(lineIndex)}
-                        disabled={generatingLineIndex === lineIndex}
+                        disabled={generatingLineIndex === lineIndex || isGeneratingAll}
                       >
                         {generatingLineIndex === lineIndex ? (
                           <>
@@ -257,8 +354,8 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                       {lineOptions[lineIndex].map((option, optionIndex) => (
                         <div key={optionIndex} className="flex items-center justify-between p-2 bg-muted/30 rounded">
                           <span className="text-sm">{option}</span>
-                          <Button 
-                            size="xs" 
+                          <Button
+                            size="sm"
                             onClick={() => selectLineOption(lineIndex, option)}
                           >
                             선택

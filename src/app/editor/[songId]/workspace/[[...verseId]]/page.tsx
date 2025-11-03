@@ -9,7 +9,19 @@ export default function WorkspacePage() {
   const { currentProject } = useProjectStore();
   const verseId = params.verseId?.[0];
 
-  if (!currentProject) return null;
+  if (!currentProject) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">프로젝트를 불러올 수 없습니다</h2>
+          <p className="text-muted-foreground">홈페이지로 돌아가서 새로운 프로젝트를 시작하세요.</p>
+          <a href="/" className="mt-4 inline-block text-primary hover:underline">
+            홈으로 이동
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // Determine current structure to edit
   let currentStructureIndex = 0;
