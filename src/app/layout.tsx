@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages, getLocale } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,24 +14,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "🎵 Lyricist AI - AI 기반 가사 생성 서비스",
-  description: "MIDI 파일의 멜로디를 분석하여 각 음표에 완벽하게 맞는 가사를 자동으로 생성하는 AI 기반 웹 서비스입니다.",
-};
+export async function generateMetadata() {
+  const locale = await getLocale();
+  const messages = await getMessages();
+  const metadata = messages.metadata as { title: string; description: string };
 
-export default function RootLayout({
+  return {
+    title: metadata.title,
+    description: metadata.description,
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="ko">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -10,12 +10,14 @@ import { useProjectStore } from "@/lib/store";
 import { validateMidiFile, generateId } from "@/lib/utils";
 import { analyzeMidiFile } from "@/lib/api";
 import { MidiAnalysis, SongStructure, LyricsProject, StructureType } from "@/types";
+import { useTranslations } from 'next-intl';
 
 export default function MidiUploadSection() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const { setCurrentProject, setCurrentView, setLoading } = useProjectStore();
   const router = useRouter();
+  const t = useTranslations();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -24,7 +26,7 @@ export default function MidiUploadSection() {
       if (!file) return;
 
       if (!validateMidiFile(file)) {
-        setUploadError("올바른 MIDI 파일(.mid, .midi)을 업로드해주세요.");
+        setUploadError(t('upload.errorInvalidFile'));
         return;
       }
 
@@ -106,7 +108,7 @@ export default function MidiUploadSection() {
 
         router.push(`/editor/${project.id}/theme`);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "파일 분석 중 오류가 발생했습니다.";
+        const errorMessage = error instanceof Error ? error.message : t('upload.errorAnalysis');
         setUploadError(errorMessage);
         console.error("Upload error:", error);
       } finally {
@@ -114,7 +116,7 @@ export default function MidiUploadSection() {
         setLoading(false);
       }
     },
-    [setCurrentProject, setCurrentView, setLoading, router]
+    [setCurrentProject, setCurrentView, setLoading, router, t]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -161,15 +163,15 @@ export default function MidiUploadSection() {
             <div className="text-center space-y-3">
               <h3 className="text-2xl font-bold">
                 {isDragActive
-                  ? "여기에 파일을 놓으세요"
-                  : "MIDI 파일을 업로드하세요"}
+                  ? t('upload.titleDragging')
+                  : t('upload.title')}
               </h3>
               <p className="text-muted-foreground text-lg">
-                드래그 앤 드롭하거나 클릭하여 업로드
+                {t('upload.subtitle')}
               </p>
               <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-accent" />
-                <span>지원 형식: .mid, .midi (최대 10MB)</span>
+                <span>{t('upload.supportedFormats')}</span>
               </div>
             </div>
 
@@ -180,7 +182,7 @@ export default function MidiUploadSection() {
                 className="mt-4 neon-button border-primary/20 hover:border-primary"
               >
                 <Music className="h-5 w-5 mr-2" />
-                파일 선택
+                {t('upload.selectFile')}
               </Button>
             )}
           </div>

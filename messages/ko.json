@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "title": "🎵 Lyricist AI - AI 기반 가사 생성 서비스",
+    "description": "MIDI 파일의 멜로디를 분석하여 각 음표에 완벽하게 맞는 가사를 자동으로 생성하는 AI 기반 웹 서비스입니다."
+  },
+  "common": {
+    "appName": "Lyricist AI",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제",
+    "edit": "편집",
+    "close": "닫기"
+  },
+  "header": {
+    "features": "기능",
+    "howItWorks": "사용법",
+    "projects": "프로젝트",
+    "myProjects": "내 프로젝트",
+    "profile": "프로필"
+  },
+  "home": {
+    "title": "🎵 Lyricist AI",
+    "subtitle": "MIDI 파일의 멜로디를 분석하여 각 음표에 완벽하게 맞는 가사를 자동으로 생성하는 AI 기반 웹 서비스",
+    "badge1": "AI 기반",
+    "badge2": "실시간 분석",
+    "badge3": "완벽한 음절 매칭"
+  },
+  "upload": {
+    "title": "MIDI 파일을 업로드하세요",
+    "titleDragging": "여기에 파일을 놓으세요",
+    "subtitle": "드래그 앤 드롭하거나 클릭하여 업로드",
+    "supportedFormats": "지원 형식: .mid, .midi (최대 10MB)",
+    "selectFile": "파일 선택",
+    "errorInvalidFile": "올바른 MIDI 파일(.mid, .midi)을 업로드해주세요.",
+    "errorAnalysis": "파일 분석 중 오류가 발생했습니다."
+  },
+  "features": {
+    "title": "핵심 기능",
+    "subtitle": "멜로디에 완벽하게 맞는 가사를 만들어보세요",
+    "accurateMatching": {
+      "title": "정확한 음절 매칭",
+      "description": "MIDI 파일의 각 음표에 정확히 맞는 음절 수로 가사 생성"
+    },
+    "aiGeneration": {
+      "title": "AI 가사 생성",
+      "description": "장르, 분위기, 키워드를 반영한 개인화된 가사 자동 생성"
+    },
+    "intuitiveEdit": {
+      "title": "직관적인 편집",
+      "description": "라인별 개별 수정과 실시간 음절 수 확인으로 쉬운 편집"
+    },
+    "export": {
+      "title": "다양한 내보내기",
+      "description": "TXT, PDF 다운로드 및 클립보드 복사 기능 제공"
+    }
+  },
+  "login": {
+    "title": "Google 계정으로 간편하게 시작하세요",
+    "signInWithGoogle": "Google로 로그인",
+    "terms": "로그인하면",
+    "termsLink": "서비스 약관",
+    "and": "과",
+    "privacyLink": "개인정보 처리방침",
+    "agree": "에 동의하게 됩니다.",
+    "errorAuthFailed": "로그인에 실패했습니다. 다시 시도해주세요.",
+    "errorUnknown": "알 수 없는 오류가 발생했습니다."
+  },
+  "onboarding": {
+    "title": "환영합니다! 프로필을 설정해주세요",
+    "nameLabel": "이름",
+    "namePlaceholder": "이름을 입력하세요",
+    "phoneLabel": "전화번호",
+    "phonePlaceholder": "010-1234-5678",
+    "complete": "설정 완료",
+    "errorSaveFailed": "프로필 저장에 실패했습니다."
+  },
+  "projects": {
+    "title": "내 프로젝트",
+    "noProjects": "아직 프로젝트가 없습니다",
+    "createFirst": "MIDI 파일을 업로드하여 첫 프로젝트를 만들어보세요!",
+    "goHome": "홈으로 이동",
+    "lastModified": "마지막 수정",
+    "continue": "계속하기"
+  },
+  "profile": {
+    "title": "프로필",
+    "name": "이름",
+    "email": "이메일",
+    "phone": "전화번호",
+    "createdAt": "가입일",
+    "updateProfile": "프로필 수정",
+    "saveChanges": "변경사항 저장",
+    "errorUpdateFailed": "프로필 업데이트에 실패했습니다."
+  },
+  "theme": {
+    "title": "곡의 테마를 선택하세요",
+    "subtitle": "장르, 분위기, 키워드를 설정하여 원하는 스타일의 가사를 생성하세요",
+    "genreLabel": "장르",
+    "genrePlaceholder": "장르를 선택하세요",
+    "moodLabel": "분위기",
+    "moodPlaceholder": "분위기를 선택하세요",
+    "keywordsLabel": "키워드",
+    "keywordsPlaceholder": "키워드를 입력하세요 (쉼표로 구분)",
+    "customStyleLabel": "추가 요청사항",
+    "customStylePlaceholder": "원하는 스타일이나 특별한 요청사항을 입력하세요...",
+    "next": "다음",
+    "skip": "건너뛰기"
+  },
+  "workspace": {
+    "noProject": "프로젝트를 불러올 수 없습니다",
+    "noProjectDesc": "홈페이지로 돌아가서 새로운 프로젝트를 시작하세요.",
+    "goHome": "홈으로 이동",
+    "selectPart": "작업할 파트를 선택해주세요",
+    "selectPartDesc": "왼쪽 사이드바에서 편집할 파트를 선택하세요."
+  },
+  "lyricsEditor": {
+    "generate": "가사 생성",
+    "regenerate": "다시 생성",
+    "generating": "생성 중...",
+    "edit": "편집",
+    "save": "저장",
+    "cancel": "취소",
+    "syllableCount": "음절 수",
+    "targetSyllables": "목표 음절",
+    "currentSyllables": "현재 음절",
+    "adjustSyllables": "음절 조정"
+  },
+  "complete": {
+    "title": "가사 작성 완료!",
+    "subtitle": "멋진 가사가 완성되었습니다",
+    "download": "다운로드",
+    "copyToClipboard": "클립보드에 복사",
+    "copied": "복사되었습니다!",
+    "backToProjects": "프로젝트 목록으로"
+  }
+}

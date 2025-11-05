@@ -1,6 +1,6 @@
 "use client";
 
-import { Music, User, LogOut, FolderOpen, UserCircle } from "lucide-react";
+import { Music, User, LogOut, FolderOpen, UserCircle, Languages } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations, useLocale } from 'next-intl';
+import { useTransition } from 'react';
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
+  const t = useTranslations();
+  const locale = useLocale();
+  const [isPending, startTransition] = useTransition();
+
+  const toggleLocale = () => {
+    const newLocale = locale === 'ko' ? 'en' : 'ko';
+    startTransition(() => {
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+      window.location.reload();
+    });
+  };
 
   return (
     <header className="border-b border-border/50 glass sticky top-0 z-50">
@@ -28,11 +41,11 @@ export default function Header() {
               <Music className="h-8 w-8 text-primary relative z-10" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Lyricist AI
+              {t('common.appName')}
             </span>
           </Link>
 
-          <nav className="flex items-center space-x-8">
+          <nav className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-8">
               {user ? (
                 <>
@@ -40,7 +53,7 @@ export default function Header() {
                     href="/projects"
                     className="text-muted-foreground hover:text-primary transition-colors relative group"
                   >
-                    <span>프로젝트</span>
+                    <span>{t('header.projects')}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all"></span>
                   </Link>
                 </>
@@ -50,19 +63,31 @@ export default function Header() {
                     href="#features"
                     className="text-muted-foreground hover:text-primary transition-colors relative group"
                   >
-                    <span>기능</span>
+                    <span>{t('header.features')}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all"></span>
                   </Link>
                   <Link
                     href="#how-it-works"
                     className="text-muted-foreground hover:text-primary transition-colors relative group"
                   >
-                    <span>사용법</span>
+                    <span>{t('header.howItWorks')}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all"></span>
                   </Link>
                 </>
               )}
             </div>
+
+            {/* Language Switcher */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleLocale}
+              disabled={isPending}
+              className="flex items-center gap-2"
+            >
+              <Languages className="h-4 w-4" />
+              <span className="text-sm font-medium">{locale.toUpperCase()}</span>
+            </Button>
 
             {!loading && (
               <>
@@ -90,13 +115,13 @@ export default function Header() {
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/projects">
                           <FolderOpen className="w-4 h-4 mr-2" />
-                          내 프로젝트
+                          {t('header.myProjects')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/profile">
                           <UserCircle className="w-4 h-4 mr-2" />
-                          프로필
+                          {t('header.profile')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -105,13 +130,13 @@ export default function Header() {
                         className="cursor-pointer"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        로그아웃
+                        {t('common.logout')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
                   <Button onClick={login} size="sm">
-                    로그인
+                    {t('common.login')}
                   </Button>
                 )}
               </>

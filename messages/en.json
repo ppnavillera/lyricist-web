@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "title": "🎵 Lyricist AI - AI-Powered Lyrics Generation Service",
+    "description": "An AI-powered web service that analyzes MIDI file melodies and automatically generates lyrics that perfectly match each note."
+  },
+  "common": {
+    "appName": "Lyricist AI",
+    "login": "Login",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  },
+  "header": {
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "projects": "Projects",
+    "myProjects": "My Projects",
+    "profile": "Profile"
+  },
+  "home": {
+    "title": "🎵 Lyricist AI",
+    "subtitle": "An AI-powered web service that analyzes MIDI file melodies and automatically generates lyrics that perfectly match each note",
+    "badge1": "AI-Powered",
+    "badge2": "Real-Time Analysis",
+    "badge3": "Perfect Syllable Matching"
+  },
+  "upload": {
+    "title": "Upload MIDI File",
+    "titleDragging": "Drop your file here",
+    "subtitle": "Drag and drop or click to upload",
+    "supportedFormats": "Supported formats: .mid, .midi (Max 10MB)",
+    "selectFile": "Select File",
+    "errorInvalidFile": "Please upload a valid MIDI file (.mid, .midi).",
+    "errorAnalysis": "An error occurred while analyzing the file."
+  },
+  "features": {
+    "title": "Key Features",
+    "subtitle": "Create lyrics that perfectly match your melody",
+    "accurateMatching": {
+      "title": "Accurate Syllable Matching",
+      "description": "Generate lyrics with the exact number of syllables to match each note in your MIDI file"
+    },
+    "aiGeneration": {
+      "title": "AI Lyrics Generation",
+      "description": "Automatically generate personalized lyrics reflecting genre, mood, and keywords"
+    },
+    "intuitiveEdit": {
+      "title": "Intuitive Editing",
+      "description": "Easy editing with line-by-line modifications and real-time syllable count"
+    },
+    "export": {
+      "title": "Versatile Export",
+      "description": "Download as TXT, PDF, or copy to clipboard"
+    }
+  },
+  "login": {
+    "title": "Get started with your Google account",
+    "signInWithGoogle": "Sign in with Google",
+    "terms": "By signing in, you agree to our",
+    "termsLink": "Terms of Service",
+    "and": "and",
+    "privacyLink": "Privacy Policy",
+    "agree": ".",
+    "errorAuthFailed": "Login failed. Please try again.",
+    "errorUnknown": "An unknown error occurred."
+  },
+  "onboarding": {
+    "title": "Welcome! Please set up your profile",
+    "nameLabel": "Name",
+    "namePlaceholder": "Enter your name",
+    "phoneLabel": "Phone Number",
+    "phonePlaceholder": "010-1234-5678",
+    "complete": "Complete Setup",
+    "errorSaveFailed": "Failed to save profile."
+  },
+  "projects": {
+    "title": "My Projects",
+    "noProjects": "No projects yet",
+    "createFirst": "Upload a MIDI file to create your first project!",
+    "goHome": "Go to Home",
+    "lastModified": "Last modified",
+    "continue": "Continue"
+  },
+  "profile": {
+    "title": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "createdAt": "Member since",
+    "updateProfile": "Update Profile",
+    "saveChanges": "Save Changes",
+    "errorUpdateFailed": "Failed to update profile."
+  },
+  "theme": {
+    "title": "Choose your song's theme",
+    "subtitle": "Set genre, mood, and keywords to generate lyrics in your desired style",
+    "genreLabel": "Genre",
+    "genrePlaceholder": "Select genre",
+    "moodLabel": "Mood",
+    "moodPlaceholder": "Select mood",
+    "keywordsLabel": "Keywords",
+    "keywordsPlaceholder": "Enter keywords (comma-separated)",
+    "customStyleLabel": "Additional Requests",
+    "customStylePlaceholder": "Enter your desired style or special requests...",
+    "next": "Next",
+    "skip": "Skip"
+  },
+  "workspace": {
+    "noProject": "Unable to load project",
+    "noProjectDesc": "Go back to the homepage and start a new project.",
+    "goHome": "Go to Home",
+    "selectPart": "Please select a part to work on",
+    "selectPartDesc": "Select a part to edit from the left sidebar."
+  },
+  "lyricsEditor": {
+    "generate": "Generate Lyrics",
+    "regenerate": "Regenerate",
+    "generating": "Generating...",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "syllableCount": "Syllable Count",
+    "targetSyllables": "Target Syllables",
+    "currentSyllables": "Current Syllables",
+    "adjustSyllables": "Adjust Syllables"
+  },
+  "complete": {
+    "title": "Lyrics Complete!",
+    "subtitle": "Your awesome lyrics are ready",
+    "download": "Download",
+    "copyToClipboard": "Copy to Clipboard",
+    "copied": "Copied!",
+    "backToProjects": "Back to Projects"
+  }
+}
