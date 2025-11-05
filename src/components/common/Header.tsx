@@ -1,6 +1,13 @@
 "use client";
 
-import { Music, User, LogOut, FolderOpen, UserCircle, Languages } from "lucide-react";
+import {
+  Music,
+  User,
+  LogOut,
+  FolderOpen,
+  UserCircle,
+  Languages,
+} from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -11,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTranslations, useLocale } from 'next-intl';
-import { useTransition } from 'react';
+import { useTranslations, useLocale } from "next-intl";
+import { useTransition } from "react";
 
 export default function Header() {
   const { user, loading, login, logout } = useAuth();
@@ -21,7 +28,7 @@ export default function Header() {
   const [isPending, startTransition] = useTransition();
 
   const toggleLocale = () => {
-    const newLocale = locale === 'ko' ? 'en' : 'ko';
+    const newLocale = locale === "ko" ? "en" : "ko";
     startTransition(() => {
       document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
       window.location.reload();
@@ -41,7 +48,7 @@ export default function Header() {
               <Music className="h-8 w-8 text-primary relative z-10" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              {t('common.appName')}
+              {t("common.appName")}
             </span>
           </Link>
 
@@ -53,13 +60,13 @@ export default function Header() {
                     href="/projects"
                     className="text-muted-foreground hover:text-primary transition-colors relative group"
                   >
-                    <span>{t('header.projects')}</span>
+                    <span>{t("header.projects")}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all"></span>
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link
+                  {/* <Link
                     href="#features"
                     className="text-muted-foreground hover:text-primary transition-colors relative group"
                   >
@@ -72,7 +79,7 @@ export default function Header() {
                   >
                     <span>{t('header.howItWorks')}</span>
                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all"></span>
-                  </Link>
+                  </Link> */}
                 </>
               )}
             </div>
@@ -86,7 +93,9 @@ export default function Header() {
               className="flex items-center gap-2"
             >
               <Languages className="h-4 w-4" />
-              <span className="text-sm font-medium">{locale.toUpperCase()}</span>
+              <span className="text-sm font-medium">
+                {locale.toUpperCase()}
+              </span>
             </Button>
 
             {!loading && (
@@ -115,13 +124,13 @@ export default function Header() {
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/projects">
                           <FolderOpen className="w-4 h-4 mr-2" />
-                          {t('header.myProjects')}
+                          {t("header.myProjects")}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/profile">
                           <UserCircle className="w-4 h-4 mr-2" />
-                          {t('header.profile')}
+                          {t("header.profile")}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -130,13 +139,13 @@ export default function Header() {
                         className="cursor-pointer"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        {t('common.logout')}
+                        {t("common.logout")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
                   <Button onClick={login} size="sm">
-                    {t('common.login')}
+                    {t("common.login")}
                   </Button>
                 )}
               </>
