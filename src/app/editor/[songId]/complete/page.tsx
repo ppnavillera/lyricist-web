@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Download, Copy, FileText, Music, Home } from 'lucide-react';
+import { Download, Copy, FileText, Music, Home, FileType } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useProjectStore } from '@/lib/store';
-import { downloadAsFile, copyToClipboard, formatDate } from '@/lib/utils';
+import { downloadAsFile, copyToClipboard, formatDate, exportToPDF } from '@/lib/utils';
 
 export default function CompletePage() {
   const params = useParams();
@@ -71,6 +71,24 @@ Generated with Lyricist AI`;
   const handleDownloadTxt = () => {
     const content = generateDetailedExport();
     downloadAsFile(content, `${currentProject.name}_lyrics.txt`, 'text/plain');
+  };
+
+  const handleDownloadPdf = async () => {
+    await exportToPDF({
+      projectName: currentProject.name,
+      fileName: currentProject.midiAnalysis.fileName,
+      createdAt: formatDate(currentProject.midiAnalysis.createdAt),
+      completedAt: currentProject.completedAt ? formatDate(currentProject.completedAt) : undefined,
+      genres: currentProject.theme.genres,
+      moods: currentProject.theme.moods,
+      keywords: currentProject.theme.keywords,
+      totalSyllables,
+      structures: completedStructures.map(s => ({
+        name: s.name,
+        lyrics: s.lyrics || '',
+        syllableCount: s.adjustedSyllableCount || s.syllableCount,
+      })),
+    }, `${currentProject.name}_lyrics.pdf`);
   };
 
   const handleNewProject = () => {
@@ -143,7 +161,7 @@ Generated with Lyricist AI`;
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <Button onClick={handleCopy} variant="outline" className="h-auto p-4">
                     <div className="flex flex-col items-center gap-2">
                       <Copy className="h-6 w-6" />
@@ -155,13 +173,23 @@ Generated with Lyricist AI`;
                       </div>
                     </div>
                   </Button>
-                  
+
                   <Button onClick={handleDownloadTxt} variant="outline" className="h-auto p-4">
                     <div className="flex flex-col items-center gap-2">
                       <FileText className="h-6 w-6" />
                       <div className="text-center">
                         <div className="font-medium">TXT 다운로드</div>
                         <div className="text-xs text-muted-foreground">프로젝트 정보 포함</div>
+                      </div>
+                    </div>
+                  </Button>
+
+                  <Button onClick={handleDownloadPdf} variant="outline" className="h-auto p-4">
+                    <div className="flex flex-col items-center gap-2">
+                      <FileType className="h-6 w-6" />
+                      <div className="text-center">
+                        <div className="font-medium">PDF 다운로드</div>
+                        <div className="text-xs text-muted-foreground">전문적인 문서</div>
                       </div>
                     </div>
                   </Button>

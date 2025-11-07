@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useProjectStore } from "@/lib/store";
 import { Genre, Mood, ProjectTheme } from "@/types";
-import { ArrowRight, Music, Sparkles } from "lucide-react";
+import { ArrowRight, Music, Sparkles, Home } from "lucide-react";
 
 const genres: Genre[] = [
   "발라드",
@@ -80,6 +80,12 @@ export default function ThemePage() {
     router.push(`/editor/${songId}/workspace`);
   };
 
+  const handleGoHome = () => {
+    if (confirm('홈으로 돌아가시겠습니까? 모든 작업 내용은 자동으로 저장됩니다.')) {
+      router.push('/');
+    }
+  };
+
   const canProceed = selectedGenres.length > 0 && selectedMoods.length > 0;
 
   if (!currentProject) return null;
@@ -97,19 +103,35 @@ export default function ThemePage() {
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-12 text-center animate-slide-up">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
-                <Sparkles className="h-10 w-10 text-primary relative z-10" />
+          <div className="mb-12 animate-slide-up">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex-1"></div>
+              <div className="flex items-center justify-center gap-3 flex-1">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl"></div>
+                  <Sparkles className="h-10 w-10 text-primary relative z-10" />
+                </div>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGoHome}
+                  className="flex items-center gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  홈으로
+                </Button>
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-              곡 테마 설정
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              {currentProject.name}의 장르와 분위기를 설정해주세요
-            </p>
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
+                곡 테마 설정
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                {currentProject.name}의 장르와 분위기를 설정해주세요
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

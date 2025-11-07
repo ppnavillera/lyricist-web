@@ -1,14 +1,23 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Home, Save } from 'lucide-react';
 import { useProjectStore } from '@/lib/store';
 import LyricsEditor from '@/components/lyrics/LyricsEditor';
+import { Button } from '@/components/ui/button';
 
 export default function WorkspacePage() {
   const params = useParams();
+  const router = useRouter();
   const { currentProject } = useProjectStore();
   const verseId = params.verseId?.[0];
+
+  const handleGoHome = () => {
+    if (confirm('홈으로 돌아가시겠습니까? 모든 작업 내용은 자동으로 저장됩니다.')) {
+      router.push('/');
+    }
+  };
 
   if (!currentProject) {
     return (
@@ -50,7 +59,28 @@ export default function WorkspacePage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <LyricsEditor 
+      {/* Top Action Bar */}
+      <div className="border-b border-border bg-card/50 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">{currentStructure.name}</h2>
+            <p className="text-xs text-muted-foreground">
+              {currentProject.name} · 자동 저장됨
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGoHome}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            홈으로
+          </Button>
+        </div>
+      </div>
+
+      <LyricsEditor
         structure={currentStructure}
         structureIndex={currentStructureIndex}
         project={currentProject}
