@@ -41,8 +41,9 @@ export function generateId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
-export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('ko-KR', {
+export function formatDate(date: Date, locale: string = 'ko'): string {
+  const localeCode = locale === 'en' ? 'en-US' : 'ko-KR';
+  return new Intl.DateTimeFormat(localeCode, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -97,106 +98,179 @@ export interface PDFExportData {
   }>;
 }
 
-export async function exportToPDF(data: PDFExportData, filename: string) {
-  // Dynamic imports to avoid SSR issues
+export interface PDFTranslations {
+  title: string;
+  project: string;
+  file: string;
+  createdAt: string;
+  completedAt: string;
+  inProgress: string;
+  genre: string;
+  mood: string;
+  keywords: string;
+  totalSyllables: string;
+  sectionsCount: string;
+  lyricsHeader: string;
+  syllables: string;
+  footer: string;
+}
+
+export async function exportToPDF(data: PDFExportData, filename: string, translations: PDFTranslations) {
   const { default: jsPDF } = await import('jspdf');
-  const { default: html2canvas } = await import('html2canvas');
+  const { loadGulimFont } = await import('./fonts/NotoSansKR-Regular');
 
-  // Create HTML content
-  const container = document.createElement('div');
-  container.style.position = 'absolute';
-  container.style.left = '-9999px';
-  container.style.width = '800px';
-  container.style.padding = '40px';
-  container.style.backgroundColor = '#ffffff';
-  container.style.fontFamily = 'Arial, sans-serif';
-
-  let html = `
-    <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">🎵 Lyricist AI - 가사 프로젝트</h1>
-    </div>
-
-    <div style="margin-bottom: 30px;">
-      <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">프로젝트: ${data.projectName}</h2>
-      <p style="margin: 5px 0;">파일: ${data.fileName}</p>
-      <p style="margin: 5px 0;">생성일: ${data.createdAt}</p>
-      <p style="margin: 5px 0;">완료일: ${data.completedAt || '진행중'}</p>
-    </div>
-  `;
-
-  if (data.genres.length > 0 || data.moods.length > 0 || data.keywords.length > 0) {
-    html += '<div style="margin-bottom: 30px;">';
-    if (data.genres.length > 0) {
-      html += `<p style="margin: 5px 0;">장르: ${data.genres.join(', ')}</p>`;
-    }
-    if (data.moods.length > 0) {
-      html += `<p style="margin: 5px 0;">분위기: ${data.moods.join(', ')}</p>`;
-    }
-    if (data.keywords.length > 0) {
-      html += `<p style="margin: 5px 0;">키워드: ${data.keywords.join(', ')}</p>`;
-    }
-    html += '</div>';
-  }
-
-  html += `
-    <div style="margin-bottom: 30px;">
-      <p style="margin: 5px 0;">총 음절 수: ${data.totalSyllables}</p>
-      <p style="margin: 5px 0;">총 ${data.structures.length}개 구간</p>
-    </div>
-
-    <h2 style="font-size: 18px; font-weight: bold; margin: 30px 0 20px 0; text-align: center;">=== 가사 ===</h2>
-  `;
-
-  data.structures.forEach((structure) => {
-    html += `
-      <div style="margin-bottom: 25px;">
-        <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">[${structure.name}] (${structure.syllableCount} 음절)</h3>
-        <p style="line-height: 1.8; white-space: pre-line;">${structure.lyrics}</p>
-      </div>
-    `;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
   });
 
-  html += `
-    <div style="text-align: center; margin-top: 50px; color: #888; font-size: 12px;">
-      Generated with Lyricist AI
-    </div>
-  `;
-
-  container.innerHTML = html;
-  document.body.appendChild(container);
-
+  // Load and add Korean font (Gulim)
   try {
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      backgroundColor: '#ffffff',
-      logging: false,
-    });
+    const fontBase64 = await loadGulimFont();
+    doc.addFileToVFS('Gulim.ttf', fontBase64);
+    doc.addFont('Gulim.ttf', 'Gulim', 'normal');
+    doc.setFont('Gulim');
+  } catch (error) {
+    console.error('Failed to load Korean font:', error);
+  }
 
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const maxWidth = pageWidth - 2 * margin;
+  let yPosition = margin;
+  let fontLoaded = false;
 
-    const imgWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
+  // Check if font was loaded
+  try {
+    doc.setFont('Gulim');
+    fontLoaded = true;
+    console.log('Using Gulim font');
+  } catch (e) {
+    console.warn('Gulim font not available, using default');
+  }
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+  const addText = (text: string, fontSize: number = 11, isBold: boolean = false, align: 'left' | 'center' = 'left') => {
+    doc.setFontSize(fontSize);
 
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    // Ensure font is set for each text
+    if (fontLoaded) {
+      try {
+        doc.setFont('Gulim', 'normal');
+      } catch (e) {
+        console.warn('Failed to set font');
+      }
     }
 
-    pdf.save(filename);
-  } finally {
-    document.body.removeChild(container);
+    const lines = doc.splitTextToSize(text, maxWidth);
+
+    lines.forEach((line: string) => {
+      if (yPosition + 10 > pageHeight - margin) {
+        doc.addPage();
+        yPosition = margin;
+        // Reset font on new page
+        if (fontLoaded) {
+          try {
+            doc.setFont('Gulim', 'normal');
+          } catch (e) {
+            console.warn('Failed to set font on new page');
+          }
+        }
+      }
+
+      if (align === 'center') {
+        const textWidth = doc.getTextWidth(line);
+        doc.text(line, (pageWidth - textWidth) / 2, yPosition);
+      } else {
+        doc.text(line, margin, yPosition);
+      }
+
+      yPosition += fontSize * 0.5;
+    });
+  };
+
+  const addSpace = (space: number = 5) => {
+    yPosition += space;
+  };
+
+  // Title
+  doc.setFontSize(18);
+  const title = translations.title;
+  const titleWidth = doc.getTextWidth(title);
+  doc.text(title, (pageWidth - titleWidth) / 2, yPosition);
+  yPosition += 15;
+  addSpace(10);
+
+  // Project Info
+  doc.setFontSize(14);
+  addText(`${translations.project}: ${data.projectName}`, 14, true);
+  addSpace(8);
+
+  addText(`${translations.file}: ${data.fileName}`, 11);
+  addSpace(5);
+  addText(`${translations.createdAt}: ${data.createdAt}`, 11);
+  addSpace(5);
+  addText(`${translations.completedAt}: ${data.completedAt || translations.inProgress}`, 11);
+  addSpace(10);
+
+  // Theme Info
+  if (data.genres.length > 0) {
+    addText(`${translations.genre}: ${data.genres.join(', ')}`, 11);
+    addSpace(5);
   }
+  if (data.moods.length > 0) {
+    addText(`${translations.mood}: ${data.moods.join(', ')}`, 11);
+    addSpace(5);
+  }
+  if (data.keywords.length > 0) {
+    addText(`${translations.keywords}: ${data.keywords.join(', ')}`, 11);
+    addSpace(5);
+  }
+
+  // Stats
+  addSpace(5);
+  addText(`${translations.totalSyllables}: ${data.totalSyllables}`, 11);
+  addSpace(5);
+  addText(translations.sectionsCount.replace('{count}', data.structures.length.toString()), 11);
+  addSpace(15);
+
+  // Lyrics Header
+  doc.setFontSize(14);
+  const lyricsHeader = translations.lyricsHeader;
+  const headerWidth = doc.getTextWidth(lyricsHeader);
+  doc.text(lyricsHeader, (pageWidth - headerWidth) / 2, yPosition);
+  yPosition += 10;
+  addSpace(10);
+
+  // Lyrics Content
+  data.structures.forEach((structure, index) => {
+    if (index > 0) addSpace(10);
+
+    doc.setFontSize(12);
+    addText(`[${structure.name}] (${structure.syllableCount} ${translations.syllables})`, 12, true);
+    addSpace(5);
+
+    doc.setFontSize(11);
+    // Split lyrics by newlines and add each line
+    const lyricsLines = structure.lyrics.split('\n');
+    lyricsLines.forEach(line => {
+      if (line.trim()) {
+        addText(line, 11);
+        addSpace(3);
+      } else {
+        addSpace(3);
+      }
+    });
+  });
+
+  // Footer
+  addSpace(20);
+  doc.setFontSize(9);
+  doc.setTextColor(128, 128, 128);
+  const footer = translations.footer;
+  const footerWidth = doc.getTextWidth(footer);
+  doc.text(footer, (pageWidth - footerWidth) / 2, pageHeight - 15);
+
+  doc.save(filename);
 }

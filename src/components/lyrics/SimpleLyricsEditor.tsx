@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { SongStructure, LyricsProject } from '@/types';
 import { countSyllables } from '@/lib/utils';
 import { generateLyrics } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 interface SimpleLyricsEditorProps {
   structure: SongStructure;
@@ -25,12 +26,24 @@ export default function SimpleLyricsEditor({
   onBackToSyllable,
   isLastStructure
 }: SimpleLyricsEditorProps) {
+  const t = useTranslations('lyricsEditor');
+  const tWorkspace = useTranslations('workspace');
+  const tTheme = useTranslations('theme');
   const [linesText, setLinesText] = useState<string[]>(() => {
     if (structure.lyrics) {
       return structure.lyrics.split('\n');
     }
     return Array(structure.lineStructure?.length || 4).fill('');
   });
+
+  // Helper function to translate genre/mood values
+  const translateValue = (value: string, type: 'genres' | 'moods'): string => {
+    try {
+      return tTheme(`${type}.${value}`);
+    } catch {
+      return value;
+    }
+  };
 
   const [generatingLineIndex, setGeneratingLineIndex] = useState<number | null>(null);
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
@@ -66,7 +79,7 @@ export default function SimpleLyricsEditor({
 
     } catch (error) {
       console.error('Generation error:', error);
-      alert('가사 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(t('generationError'));
     } finally {
       setGeneratingLineIndex(null);
     }
@@ -108,8 +121,8 @@ export default function SimpleLyricsEditor({
       }
 
     } catch (error) {
-      console.error('전체 생성 오류:', error);
-      alert('가사 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error(t('fullGenerationError'), error);
+      alert(t('generationError'));
     } finally {
       setGeneratingLineIndex(null);
       setIsGeneratingAll(false);
@@ -144,35 +157,35 @@ export default function SimpleLyricsEditor({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Edit3 className="h-5 w-5" />
-          가사 제작
+          {t('lyricsCreation')}
         </CardTitle>
         <CardDescription>
-          각 줄별로 AI가 가사를 생성하거나 직접 입력하여 수정해주세요.
+          {t('lyricsCreationDescription')}
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Theme & Target Info */}
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">목표 음절 수:</span>
-              <p className="font-medium">{targetSyllableCount} 음절</p>
+              <span className="text-muted-foreground">{t('targetSyllableCount')}:</span>
+              <p className="font-medium">{targetSyllableCount} {tWorkspace('syllables')}</p>
             </div>
             <div>
-              <span className="text-muted-foreground">파트:</span>
+              <span className="text-muted-foreground">{t('part')}:</span>
               <p className="font-medium">{structure.name}</p>
             </div>
           </div>
-          
+
           <div className="space-y-2">
-            <span className="text-muted-foreground text-sm">설정된 테마:</span>
+            <span className="text-muted-foreground text-sm">{t('configuredTheme')}:</span>
             <div className="flex flex-wrap gap-2">
               {project.theme.genres.map((genre, index) => (
-                <Badge key={index} variant="secondary">{genre}</Badge>
+                <Badge key={index} variant="secondary">{translateValue(genre, 'genres')}</Badge>
               ))}
               {project.theme.moods.map((mood, index) => (
-                <Badge key={index} variant="outline">{mood}</Badge>
+                <Badge key={index} variant="outline">{translateValue(mood, 'moods')}</Badge>
               ))}
             </div>
           </div>
@@ -182,29 +195,29 @@ export default function SimpleLyricsEditor({
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">현재 음절 수:</span>
-              <Badge 
+              <span className="text-sm font-medium">{t('currentSyllableCount')}</span>
+              <Badge
                 variant={isWithinRange ? "default" : "destructive"}
                 className="text-sm"
               >
                 {totalCurrentSyllables}
               </Badge>
               <span className="text-sm text-muted-foreground">
-                / {targetSyllableCount} (목표)
+                / {targetSyllableCount} ({t('target')})
               </span>
             </div>
             <div className="text-xs text-muted-foreground">
               {syllableDifference > 0 ? (
                 <span className="text-orange-500">
-                  {syllableDifference}음절 초과
+                  {t('syllablesOver', { count: syllableDifference })}
                 </span>
               ) : syllableDifference < 0 ? (
                 <span className="text-blue-500">
-                  {Math.abs(syllableDifference)}음절 부족
+                  {t('syllablesUnder', { count: Math.abs(syllableDifference) })}
                 </span>
               ) : (
                 <span className="text-green-500">
-                  정확히 맞음
+                  {t('exactMatch')}
                 </span>
               )}
             </div>
@@ -215,14 +228,14 @@ export default function SimpleLyricsEditor({
         {structure.lineStructure && structure.lineStructure.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">줄별 가사 제작</h4>
+              <h4 className="font-medium">{t('lineCreation')}</h4>
               {isGeneratingAll ? (
                 <Button
                   size="sm"
                   variant="destructive"
                   onClick={cancelGenerateAll}
                 >
-                  생성 취소
+                  {t('cancelGeneration')}
                 </Button>
               ) : (
                 <Button
@@ -232,7 +245,7 @@ export default function SimpleLyricsEditor({
                   disabled={isGeneratingAll}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  전체 자동 생성
+                  {t('autoGenerateAll')}
                 </Button>
               )}
             </div>
@@ -244,7 +257,7 @@ export default function SimpleLyricsEditor({
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">
-                      {generatingLineIndex + 1}/{structure.lineStructure!.length} 줄 생성 중...
+                      {t('generatingProgress', { current: generatingLineIndex + 1, total: structure.lineStructure!.length })}
                     </p>
                     <div className="w-full bg-muted rounded-full h-2 mt-2">
                       <div
@@ -270,14 +283,14 @@ export default function SimpleLyricsEditor({
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm">
-                        {lineIndex + 1}줄: {line.description || `${lineIndex + 1}번째 줄`}
+                        {t('lineNumber', { number: lineIndex + 1 })}: {line.description || t('lineDescriptionDefault', { number: lineIndex + 1 })}
                       </CardTitle>
                       <div className="flex items-center gap-2">
-                        <Badge 
+                        <Badge
                           variant={isLineGood ? "outline" : "secondary"}
                           className="text-xs"
                         >
-                          {currentLineSyllables}/{targetLineSyllables}음절
+                          {currentLineSyllables}/{targetLineSyllables}{tWorkspace('syllables')}
                         </Badge>
                         <Button
                           size="sm"
@@ -288,31 +301,31 @@ export default function SimpleLyricsEditor({
                           {generatingLineIndex === lineIndex ? (
                             <>
                               <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                              생성중
+                              {t('generating')}
                             </>
                           ) : (
                             <>
                               <Sparkles className="h-3 w-3 mr-1" />
-                              AI 생성
+                              {t('aiGenerateButton')}
                             </>
                           )}
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent>
                     <Input
-                      placeholder={`${lineIndex + 1}번째 줄 가사를 입력하세요...`}
+                      placeholder={t('linePlaceholder', { number: lineIndex + 1 })}
                       value={linesText[lineIndex] || ''}
                       onChange={(e) => updateLineText(lineIndex, e.target.value)}
                       className="font-medium"
                     />
-                    
+
                     {/* Previous lines context */}
                     {lineIndex > 0 && linesText.slice(0, lineIndex).some(text => text.trim()) && (
                       <div className="text-xs text-muted-foreground bg-muted/20 p-2 rounded mt-2">
-                        <span className="font-medium">이전 줄들:</span>
+                        <span className="font-medium">{t('previousLines')}</span>
                         <div className="mt-1 space-y-0.5">
                           {linesText.slice(0, lineIndex)
                             .filter(text => text.trim())
@@ -340,7 +353,7 @@ export default function SimpleLyricsEditor({
               size="lg"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              줄 수 다시 설정
+              {t('resetLineCount')}
             </Button>
           )}
           <Button
@@ -350,7 +363,7 @@ export default function SimpleLyricsEditor({
             className="flex-1"
           >
             <Check className="h-4 w-4 mr-2" />
-            {isLastStructure ? '프로젝트 완료하기' : '다음 파트로 이동'}
+            {isLastStructure ? t('completeProject') : t('moveToNextPart')}
           </Button>
         </div>
       </CardContent>

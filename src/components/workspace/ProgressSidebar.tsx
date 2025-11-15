@@ -19,8 +19,10 @@ import { useProjectStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { SongStructure } from "@/types";
 import { copyToClipboard } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export default function ProgressSidebar() {
+  const t = useTranslations('workspace');
   const params = useParams();
   const router = useRouter();
   const { currentProject, ui, setSidebarCollapsed, setCurrentStructureIndex } =
@@ -145,7 +147,7 @@ export default function ProgressSidebar() {
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-4">
           <h2 className={cn("font-semibold", ui.sidebarCollapsed && "hidden")}>
-            진행 현황
+            {t('progress')}
           </h2>
           <Button
             variant="ghost"
@@ -165,7 +167,7 @@ export default function ProgressSidebar() {
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">
-                완료: {completedCount}/{totalCount}
+                {t('completedCount', { completed: completedCount, total: totalCount })}
               </span>
               <span className="text-primary font-bold">
                 {Math.round(progressPercentage)}%
@@ -248,11 +250,11 @@ export default function ProgressSidebar() {
                             <div className="text-xs text-muted-foreground">
                               {structure.adjustedSyllableCount ||
                                 structure.syllableCount}{" "}
-                              음절
+                              {t('syllables')}
                             </div>
                             {isLocked && (
                               <div className="text-xs text-orange-500 mt-1">
-                                🔒 이전 구간을 먼저 완료하세요
+                                🔒 {t('completePrevious')}
                               </div>
                             )}
                           </div>
@@ -270,7 +272,7 @@ export default function ProgressSidebar() {
                                 onClick={(e) =>
                                   openDetailModal(structure.id, e)
                                 }
-                                title="자세히 보기"
+                                title={t('viewDetail')}
                               >
                                 <Eye className="h-3 w-3" />
                               </Button>
@@ -281,8 +283,8 @@ export default function ProgressSidebar() {
                                 onClick={(e) => toggleExpanded(structure.id, e)}
                                 title={
                                   expandedStructures.has(structure.id)
-                                    ? "접기"
-                                    : "펼치기"
+                                    ? t('collapse')
+                                    : t('expand')
                                 }
                               >
                                 {expandedStructures.has(structure.id) ? (
@@ -336,8 +338,8 @@ export default function ProgressSidebar() {
           >
             <span className="relative z-10">
               {completedCount === totalCount
-                ? "✨ 완료하기"
-                : `${totalCount - completedCount}개 남음`}
+                ? `✨ ${t('completeAll')}`
+                : t('remainingCount', { count: totalCount - completedCount })}
             </span>
           </Button>
           {/* [수정 부분 4 끝] */}
@@ -351,12 +353,9 @@ export default function ProgressSidebar() {
             <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">
-                  {
-                    currentProject.midiAnalysis.structure.find(
+                  {t('lyricsDetail', { name: currentProject.midiAnalysis.structure.find(
                       (s) => s.id === detailModalStructure
-                    )?.name
-                  }{" "}
-                  - 가사 상세
+                    )?.name || '' })}
                 </h3>
                 <Button variant="ghost" size="sm" onClick={closeDetailModal}>
                   ✕
@@ -385,12 +384,12 @@ export default function ProgressSidebar() {
                         {copyingStructure === structure.id ? (
                           <>
                             <Check className="h-4 w-4 mr-2 text-green-500" />
-                            복사됨
+                            {t('copied')}
                           </>
                         ) : (
                           <>
                             <Copy className="h-4 w-4 mr-2" />
-                            가사 복사
+                            {t('copyLyrics')}
                           </>
                         )}
                       </Button>
@@ -406,7 +405,7 @@ export default function ProgressSidebar() {
                     {/* Line Structure */}
                     {structure.lineStructure && (
                       <div>
-                        <h4 className="font-medium mb-2">줄별 구조</h4>
+                        <h4 className="font-medium mb-2">{t('lineStructure')}</h4>
                         <div className="grid grid-cols-2 gap-2">
                           {structure.lineStructure.map((line, lineIndex) => (
                             <div
@@ -414,11 +413,10 @@ export default function ProgressSidebar() {
                               className="flex items-center justify-between p-2 bg-muted/25 rounded text-sm"
                             >
                               <span>
-                                {lineIndex + 1}줄:{" "}
-                                {line.description || `${lineIndex + 1}번째 줄`}
+                                {t('lineInfo', { number: lineIndex + 1, description: line.description || t('lineInfo', { number: lineIndex + 1, description: '' }).split(':')[0] })}
                               </span>
                               <Badge variant="outline" className="text-xs">
-                                {line.syllables}음절
+                                {line.syllables} {t('syllables')}
                               </Badge>
                             </div>
                           ))}
@@ -429,11 +427,10 @@ export default function ProgressSidebar() {
                     {/* Statistics */}
                     <div className="flex items-center justify-between text-sm text-muted-foreground pt-2 border-t border-border/50">
                       <span>
-                        총 음절 수:{" "}
-                        {structure.lyrics.replace(/\s+/g, "").length}음절
+                        {t('totalSyllableCount', { count: structure.lyrics.replace(/\s+/g, "").length })}
                       </span>
                       <span>
-                        줄 수: {structure.lyrics.split("\n").length}줄
+                        {t('lineCount', { count: structure.lyrics.split("\n").length })}
                       </span>
                     </div>
                   </div>

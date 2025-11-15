@@ -10,6 +10,7 @@ import { useProjectStore } from '@/lib/store';
 import SyllableAdjuster from './SyllableAdjuster';
 import SimpleLyricsEditor from './SimpleLyricsEditor';
 import EditableTitle from '@/components/common/EditableTitle';
+import { useTranslations } from 'next-intl';
 
 interface LyricsEditorProps {
   structure: SongStructure;
@@ -20,19 +21,20 @@ interface LyricsEditorProps {
 type EditorStep = 'syllable' | 'lyrics';
 
 export default function LyricsEditor({ structure, structureIndex, project }: LyricsEditorProps) {
+  const t = useTranslations('lyricsEditor');
   const router = useRouter();
   const params = useParams();
   const songId = params.songId as string;
-  
-  const { 
-    updateStructureSyllableCount, 
+
+  const {
+    updateStructureSyllableCount,
     updateStructureLineStructure,
     updateStructureName,
-    updateStructureLyrics, 
-    markStructureCompleted, 
-    setCurrentStructureIndex 
+    updateStructureLyrics,
+    markStructureCompleted,
+    setCurrentStructureIndex
   } = useProjectStore();
-  
+
   const [currentStep, setCurrentStep] = useState<EditorStep>(
     structure.adjustedSyllableCount !== undefined ? 'lyrics' : 'syllable'
   );
@@ -88,24 +90,24 @@ export default function LyricsEditor({ structure, structureIndex, project }: Lyr
               <EditableTitle
                 value={structure.name}
                 onChange={handleNameChange}
-                placeholder="구간 이름"
+                placeholder={t('part')}
                 maxLength={30}
               />
-              <span className="text-2xl font-bold text-muted-foreground">가사 제작</span>
+              <span className="text-2xl font-bold text-muted-foreground">{t('lyricsProduction')}</span>
             </div>
             <p className="text-muted-foreground mt-1">
-              {structureIndex + 1} / {project.midiAnalysis.structure.length} 단계
+              {t('step', { current: structureIndex + 1, total: project.midiAnalysis.structure.length })}
             </p>
           </div>
-          
+
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handlePrevious}
               disabled={!canGoPrevious}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              이전
+              {t('previous')}
             </Button>
           </div>
         </div>

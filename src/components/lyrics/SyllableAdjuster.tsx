@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SongStructure, LineStructure } from '@/types';
 import LineStructureEditor from './LineStructureEditor';
+import { useTranslations } from 'next-intl';
 
 interface SyllableAdjusterProps {
   structure: SongStructure;
@@ -13,6 +14,7 @@ interface SyllableAdjusterProps {
 }
 
 export default function SyllableAdjuster({ structure, onComplete }: SyllableAdjusterProps) {
+  const t = useTranslations('lyricsEditor');
   const [adjustedCount, setAdjustedCount] = useState(
     structure.adjustedSyllableCount || structure.syllableCount
   );
@@ -37,15 +39,15 @@ export default function SyllableAdjuster({ structure, onComplete }: SyllableAdju
       {/* Header */}
       <Card>
         <CardHeader>
-          <CardTitle>줄별 음절 수 설정</CardTitle>
+          <CardTitle>{t('syllableAdjustment')}</CardTitle>
           <CardDescription>
-            AI가 분석한 기본 음절 수를 줄별로 나누어 설정하세요. 각 줄의 음절 수에 맞춰 더 정확한 가사를 생성할 수 있습니다.
+            {t('syllableAdjustmentDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <span className="text-sm font-medium">분석된 기본 음절 수</span>
-            <span className="text-lg font-bold text-primary">{structure.syllableCount} 음절</span>
+            <span className="text-sm font-medium">{t('analyzedSyllables')}</span>
+            <span className="text-lg font-bold text-primary">{structure.syllableCount} {t('syllables')}</span>
           </div>
         </CardContent>
       </Card>
@@ -59,13 +61,13 @@ export default function SyllableAdjuster({ structure, onComplete }: SyllableAdju
 
       {/* Complete Button */}
       <div className="flex justify-center">
-        <Button 
-          onClick={handleComplete} 
+        <Button
+          onClick={handleComplete}
           disabled={!canComplete}
           size="lg"
           className="min-w-[200px]"
         >
-          완료 - 가사 제작으로 이동
+          {t('completeAndProceed')}
           <ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </div>

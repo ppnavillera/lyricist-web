@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Music, Calendar, Trash2, Eye, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { useTranslations } from 'next-intl';
 
 interface MidiFile {
   midiId: number;
@@ -23,6 +24,7 @@ interface LyricsItem {
 }
 
 function ProjectsPageContent() {
+  const t = useTranslations('projects');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'midi' | 'lyrics'>('midi');
   const [midiFiles, setMidiFiles] = useState<MidiFile[]>([]);
@@ -66,33 +68,33 @@ function ProjectsPageContent() {
       }
     } catch (err) {
       console.error('Failed to load data:', err);
-      setError('데이터를 불러오는데 실패했습니다.');
+      setError(t('loadError'));
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteMidi = async (midiId: number) => {
-    if (!confirm('이 MIDI 파일을 삭제하시겠습니까?')) return;
+    if (!confirm(t('deleteConfirmMidi'))) return;
 
     try {
       await apiClient.midi.delete(midiId);
       loadData();
     } catch (err) {
       console.error('Failed to delete midi:', err);
-      alert('삭제에 실패했습니다.');
+      alert(t('deleteFailed'));
     }
   };
 
   const handleDeleteLyrics = async (lyricsId: number) => {
-    if (!confirm('이 가사를 삭제하시겠습니까?')) return;
+    if (!confirm(t('deleteConfirmLyrics'))) return;
 
     try {
       await apiClient.lyrics.delete(lyricsId);
       loadData();
     } catch (err) {
       console.error('Failed to delete lyrics:', err);
-      alert('삭제에 실패했습니다.');
+      alert(t('deleteFailed'));
     }
   };
 
@@ -115,14 +117,14 @@ function ProjectsPageContent() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">내 프로젝트</h1>
+            <h1 className="text-3xl font-bold gradient-text mb-2">{t('title')}</h1>
             <p className="text-muted-foreground">
-              업로드한 MIDI 파일과 생성된 가사를 관리하세요.
+              {t('description')}
             </p>
           </div>
           <Button onClick={handleNewProject}>
             <Plus className="w-4 h-4 mr-2" />
-            새 프로젝트
+            {t('newProject')}
           </Button>
         </div>
 
@@ -136,7 +138,7 @@ function ProjectsPageContent() {
             }}
           >
             <Music className="w-4 h-4 mr-2" />
-            MIDI 파일
+            {t('midiFiles')}
           </Button>
           <Button
             variant={activeTab === 'lyrics' ? 'default' : 'outline'}
@@ -146,7 +148,7 @@ function ProjectsPageContent() {
             }}
           >
             <Music className="w-4 h-4 mr-2" />
-            가사
+            {t('lyrics')}
           </Button>
         </div>
 
@@ -168,10 +170,10 @@ function ProjectsPageContent() {
                 {midiFiles.length === 0 ? (
                   <div className="col-span-full text-center py-12 text-muted-foreground">
                     <Music className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                    <p>아직 업로드한 MIDI 파일이 없습니다.</p>
+                    <p>{t('noMidiFiles')}</p>
                     <Button onClick={handleNewProject} className="mt-4">
                       <Plus className="w-4 h-4 mr-2" />
-                      첫 프로젝트 시작하기
+                      {t('startFirstProject')}
                     </Button>
                   </div>
                 ) : (
@@ -200,7 +202,7 @@ function ProjectsPageContent() {
                             className="flex-1"
                           >
                             <Eye className="w-4 h-4 mr-2" />
-                            보기
+                            {t('view')}
                           </Button>
                           <Button
                             onClick={() => handleDeleteMidi(midi.midiId)}
@@ -223,10 +225,10 @@ function ProjectsPageContent() {
                 {lyrics.length === 0 ? (
                   <div className="col-span-full text-center py-12 text-muted-foreground">
                     <Music className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                    <p>아직 생성된 가사가 없습니다.</p>
+                    <p>{t('noLyrics')}</p>
                     <Button onClick={handleNewProject} className="mt-4">
                       <Plus className="w-4 h-4 mr-2" />
-                      가사 생성하기
+                      {t('generateLyrics')}
                     </Button>
                   </div>
                 ) : (
@@ -237,7 +239,7 @@ function ProjectsPageContent() {
                           <div className="flex items-center space-x-2 flex-1">
                             <Music className="w-5 h-5 text-primary flex-shrink-0" />
                             <h3 className="font-semibold truncate">
-                              가사 #{item.lyricsId}
+                              {t('lyricsId', { id: item.lyricsId })}
                             </h3>
                           </div>
                         </div>
@@ -255,7 +257,7 @@ function ProjectsPageContent() {
                             className="flex-1"
                           >
                             <Eye className="w-4 h-4 mr-2" />
-                            보기
+                            {t('view')}
                           </Button>
                           <Button
                             onClick={() => handleDeleteLyrics(item.lyricsId)}

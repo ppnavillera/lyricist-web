@@ -9,6 +9,7 @@ import {
   Languages,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +26,15 @@ export default function Header() {
   const { user, loading, login, logout } = useAuth();
   const t = useTranslations();
   const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
   const toggleLocale = () => {
     const newLocale = locale === "ko" ? "en" : "ko";
     startTransition(() => {
       document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
-      window.location.reload();
+      router.refresh();
     });
   };
 

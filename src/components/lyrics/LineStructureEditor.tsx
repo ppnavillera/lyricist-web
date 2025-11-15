@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { LineStructure } from '@/types';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface LineStructureEditorProps {
   totalSyllables: number;
@@ -16,13 +17,14 @@ interface LineStructureEditorProps {
 }
 
 const PRESETS = [
-  { name: '균등 4줄', lines: [8, 8, 8, 8] },
-  { name: '균등 6줄', lines: [5, 5, 5, 5, 6, 6] },
-  { name: '일반형', lines: [10, 6, 12, 4] },
-  { name: '발라드형', lines: [12, 8, 10, 6] },
+  { nameKey: 'presetEven4', lines: [8, 8, 8, 8] },
+  { nameKey: 'presetEven6', lines: [5, 5, 5, 5, 6, 6] },
+  { nameKey: 'presetStandard', lines: [10, 6, 12, 4] },
+  { nameKey: 'presetBallad', lines: [12, 8, 10, 6] },
 ];
 
 export default function LineStructureEditor({ totalSyllables, initialLineStructure, onUpdate }: LineStructureEditorProps) {
+  const t = useTranslations('lyricsEditor');
   const [lines, setLines] = useState<LineStructure[]>(() => {
     if (initialLineStructure && initialLineStructure.length > 0) {
       return initialLineStructure;
@@ -30,7 +32,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     // Default: 1 line with all syllables
     return [{
       syllables: totalSyllables,
-      description: `1번째 줄`,
+      description: t('lineDescriptionPlaceholder', { number: 1 }),
     }];
   });
 
@@ -70,7 +72,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
 
     newLines.push({
       syllables: 1,
-      description: `${lines.length + 1}번째 줄`
+      description: t('lineDescriptionPlaceholder', { number: lines.length + 1 })
     });
 
     setLines(newLines);
@@ -98,12 +100,12 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
       
       setLines(adjustedLines.map((syllables, i) => ({
         syllables: Math.max(1, syllables),
-        description: `${i + 1}번째 줄`,
+        description: t('lineDescriptionPlaceholder', { number: i + 1 }),
       })));
     } else {
       setLines(preset.lines.map((syllables, i) => ({
         syllables,
-        description: `${i + 1}번째 줄`,
+        description: t('lineDescriptionPlaceholder', { number: i + 1 }),
       })));
     }
   };
@@ -114,28 +116,28 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     
     setLines(lines.map((_, i) => ({
       syllables: syllablesPerLine + (i < remainder ? 1 : 0),
-      description: `${i + 1}번째 줄`,
+      description: t('lineDescriptionPlaceholder', { number: i + 1 }),
     })));
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>줄별 음절 수 설정</CardTitle>
+        <CardTitle>{t('lineStructureSettings')}</CardTitle>
         <CardDescription>
-          분석된 기본 음절 수({totalSyllables}음절)를 참고하여 줄별로 나누어 설정하세요. 당김음이나 작곡 의도에 따라 총 음절 수는 달라질 수 있습니다.
+          {t('lineStructureDescription', { count: totalSyllables })}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Current Status */}
         <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-medium">현재 총 음절:</span>
+            <span className="text-sm font-medium">{t('currentTotal')}</span>
             <Badge variant="default" className="text-sm">
               {currentTotal}
             </Badge>
             <span className="text-sm text-muted-foreground">
-              (기본: {totalSyllables}음절)
+              ({t('default')}: {totalSyllables} {t('syllables')})
             </span>
           </div>
           {difference !== 0 && (
@@ -143,14 +145,14 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
               "text-sm",
               Math.abs(difference) <= 3 ? "text-blue-600" : "text-orange-600"
             )}>
-              {difference > 0 ? `+${difference}` : `${difference}`}음절
+              {difference > 0 ? `+${difference}` : `${difference}`} {t('syllables')}
             </span>
           )}
         </div>
 
         {/* Presets */}
         <div className="space-y-2">
-          <span className="text-sm font-medium">빠른 설정</span>
+          <span className="text-sm font-medium">{t('quickSettings')}</span>
           <div className="flex flex-wrap gap-2">
             {PRESETS.map((preset, index) => (
               <Button
@@ -160,7 +162,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
                 onClick={() => applyPreset(preset)}
                 className="text-xs"
               >
-                {preset.name} ({preset.lines.join('-')})
+                {t(preset.nameKey)} ({preset.lines.join('-')})
               </Button>
             ))}
             <Button
@@ -170,7 +172,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
               className="text-xs"
             >
               <RotateCcw className="h-3 w-3 mr-1" />
-              균등분배
+              {t('evenDistribution')}
             </Button>
           </div>
         </div>
@@ -178,7 +180,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
         {/* Line Editors */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">줄별 설정</span>
+            <span className="text-sm font-medium">{t('lineSettings')}</span>
             <Button
               variant="outline"
               size="sm"
@@ -186,7 +188,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
               disabled={lines.length >= 10}
             >
               <Plus className="h-4 w-4 mr-1" />
-              줄 추가
+              {t('addLine')}
             </Button>
           </div>
           
@@ -199,7 +201,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
                 
                 <div className="flex-1">
                   <Input
-                    placeholder={`${index + 1}번째 줄 설명`}
+                    placeholder={t('lineDescriptionPlaceholder', { number: index + 1 })}
                     value={line.description || ''}
                     onChange={(e) => updateLineDescription(index, e.target.value)}
                     className="text-sm"
@@ -248,12 +250,12 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
 
         {/* Tips */}
         <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-          <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">💡 줄별 음절 설정 팁</h4>
+          <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">💡 {t('lineStructureTips')}</h4>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>• 기본 음절 수는 참고용이며, 작곡 의도에 따라 자유롭게 조정하세요</li>
-            <li>• 당김음이 있다면 해당 음절을 앞/뒤 줄로 이동시킬 수 있습니다</li>
-            <li>• 빠른 멜로디 부분은 음절을 많이, 느린 부분은 적게</li>
-            <li>• 감정적 표현이 중요한 부분은 여유있게 설정하세요</li>
+            <li>• {t('tip1')}</li>
+            <li>• {t('tip2')}</li>
+            <li>• {t('tip3')}</li>
+            <li>• {t('tip4')}</li>
           </ul>
         </div>
       </CardContent>

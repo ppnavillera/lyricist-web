@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { SongStructure, LyricsProject } from '@/types';
 import { useProjectStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface AiLyricsGeneratorProps {
   structure: SongStructure;
@@ -16,7 +17,19 @@ interface AiLyricsGeneratorProps {
 }
 
 export default function AiLyricsGenerator({ structure, project }: AiLyricsGeneratorProps) {
+  const t = useTranslations('lyricsEditor');
+  const tWorkspace = useTranslations('workspace');
+  const tTheme = useTranslations('theme');
   const [additionalPrompt, setAdditionalPrompt] = useState('');
+
+  // Helper function to translate genre/mood values
+  const translateValue = (value: string, type: 'genres' | 'moods'): string => {
+    try {
+      return tTheme(`${type}.${value}`);
+    } catch {
+      return value;
+    }
+  };
   const [linesText, setLinesText] = useState<string[]>(() => {
     // Initialize with existing lyrics or empty lines
     if (structure.lyrics) {
@@ -118,7 +131,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
       updateStructureLyrics(structure.id, completeLyrics);
 
     } catch (error) {
-      console.error('전체 생성 오류:', error);
+      console.error(t('fullGenerationError'), error);
     } finally {
       setGeneratingLineIndex(null);
       setIsGeneratingAll(false);
@@ -201,10 +214,10 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
-          AI 가사 생성
+          {t('aiGeneration')}
         </CardTitle>
         <CardDescription>
-          설정한 테마와 음절 수에 맞는 가사를 AI가 생성해드립니다.
+          {t('aiGenerationDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -212,29 +225,29 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">목표 음절 수:</span>
-              <p className="font-medium">{targetSyllableCount} 음절</p>
+              <span className="text-muted-foreground">{t('targetSyllableCount')}:</span>
+              <p className="font-medium">{targetSyllableCount} {tWorkspace('syllables')}</p>
             </div>
             <div>
-              <span className="text-muted-foreground">파트:</span>
+              <span className="text-muted-foreground">{t('part')}:</span>
               <p className="font-medium">{structure.name}</p>
             </div>
           </div>
-          
+
           <div className="space-y-3">
             <div className="space-y-2">
-              <span className="text-muted-foreground text-sm">설정된 테마:</span>
+              <span className="text-muted-foreground text-sm">{t('configuredTheme')}:</span>
               <div className="flex flex-wrap gap-2">
                 {project.theme.genres.map((genre, index) => (
-                  <Badge key={index} variant="secondary">{genre}</Badge>
+                  <Badge key={index} variant="secondary">{translateValue(genre, 'genres')}</Badge>
                 ))}
                 {project.theme.moods.map((mood, index) => (
-                  <Badge key={index} variant="outline">{mood}</Badge>
+                  <Badge key={index} variant="outline">{translateValue(mood, 'moods')}</Badge>
                 ))}
               </div>
               {project.theme.keywords.length > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  키워드: {project.theme.keywords.join(', ')}
+                  {tWorkspace('keywords')}: {project.theme.keywords.join(', ')}
                 </p>
               )}
             </div>
@@ -243,9 +256,9 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
 
         {/* Additional Prompt */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">추가 요청사항 (선택사항)</label>
+          <label className="text-sm font-medium">{t('additionalRequest')}</label>
           <Input
-            placeholder="예: 더 감성적으로, 특정 단어 포함, 운율 강조 등"
+            placeholder={t('additionalRequestPlaceholder')}
             value={additionalPrompt}
             onChange={(e) => setAdditionalPrompt(e.target.value)}
           />
@@ -255,14 +268,14 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
         {structure.lineStructure && structure.lineStructure.length > 0 && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-medium">줄별 가사 편집</h4>
+              <h4 className="font-medium">{t('lineByLineEdit')}</h4>
               {isGeneratingAll ? (
                 <Button
                   size="sm"
                   variant="destructive"
                   onClick={cancelGenerateAll}
                 >
-                  생성 취소
+                  {t('cancelGeneration')}
                 </Button>
               ) : (
                 <Button
@@ -272,7 +285,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                   disabled={isGeneratingAll}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  전체 자동 생성
+                  {t('autoGenerateAll')}
                 </Button>
               )}
             </div>
@@ -284,7 +297,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                   <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   <div className="flex-1">
                     <p className="text-sm font-medium">
-                      {generatingLineIndex + 1}/{structure.lineStructure!.length} 줄 생성 중...
+                      {t('generatingProgress', { current: generatingLineIndex + 1, total: structure.lineStructure!.length })}
                     </p>
                     <div className="w-full bg-muted rounded-full h-2 mt-2">
                       <div
@@ -304,7 +317,7 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm">
-                      {lineIndex + 1}줄: {line.description || `${lineIndex + 1}번째 줄`} ({line.syllables}음절)
+                      {t('lineNumber', { number: lineIndex + 1 })}: {line.description || t('lineDescriptionDefault', { number: lineIndex + 1 })} ({line.syllables}{tWorkspace('syllables')})
                     </CardTitle>
                     <div className="flex items-center gap-2">
                       <Button
@@ -316,12 +329,12 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                         {generatingLineIndex === lineIndex ? (
                           <>
                             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                            생성중
+                            {t('generating')}
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-3 w-3 mr-1" />
-                            AI 생성
+                            {t('aiGenerateButton')}
                           </>
                         )}
                       </Button>
@@ -331,26 +344,26 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                           variant="ghost"
                           onClick={() => clearLineOptions(lineIndex)}
                         >
-                          옵션 닫기
+                          {t('closeOptions')}
                         </Button>
                       )}
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent className="space-y-3">
                   {/* Text Input */}
                   <Input
-                    placeholder={`${lineIndex + 1}번째 줄 가사를 입력하세요...`}
+                    placeholder={t('linePlaceholder', { number: lineIndex + 1 })}
                     value={linesText[lineIndex] || ''}
                     onChange={(e) => updateLineText(lineIndex, e.target.value)}
                     className="font-medium"
                   />
-                  
+
                   {/* AI Generated Options */}
                   {lineOptions[lineIndex] && (
                     <div className="space-y-2">
-                      <span className="text-xs text-muted-foreground">AI 생성 옵션:</span>
+                      <span className="text-xs text-muted-foreground">{t('aiGeneratedOptions')}</span>
                       {lineOptions[lineIndex].map((option, optionIndex) => (
                         <div key={optionIndex} className="flex items-center justify-between p-2 bg-muted/30 rounded">
                           <span className="text-sm">{option}</span>
@@ -358,17 +371,17 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
                             size="sm"
                             onClick={() => selectLineOption(lineIndex, option)}
                           >
-                            선택
+                            {t('selectOption')}
                           </Button>
                         </div>
                       ))}
                     </div>
                   )}
-                  
+
                   {/* Context Preview */}
                   {lineIndex > 0 && linesText.slice(0, lineIndex).some(text => text.trim()) && (
                     <div className="text-xs text-muted-foreground bg-muted/20 p-2 rounded">
-                      <span className="font-medium">이전 줄들:</span>
+                      <span className="font-medium">{t('previousLines')}</span>
                       <div className="mt-1">
                         {linesText.slice(0, lineIndex)
                           .filter(text => text.trim())
@@ -388,12 +401,12 @@ export default function AiLyricsGenerator({ structure, project }: AiLyricsGenera
 
         {/* Save Button */}
         <div className="flex gap-2">
-          <Button 
+          <Button
             onClick={saveAllLines}
             className="flex-1"
             disabled={!linesText.some(line => line.trim())}
           >
-            가사 저장하기
+            {t('saveLyrics')}
           </Button>
         </div>
       </CardContent>

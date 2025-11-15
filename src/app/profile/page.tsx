@@ -10,8 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, Phone, Edit2, Check, X } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { useTranslations } from 'next-intl';
 
 function ProfilePageContent() {
+  const t = useTranslations('profile');
+  const tCommon = useTranslations('common');
   const { user, checkAuth } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,12 +71,12 @@ function ProfilePageContent() {
     setSuccess('');
 
     if (!formData.name.trim()) {
-      setError('이름을 입력해주세요.');
+      setError(t('nameRequired'));
       return;
     }
 
     if (!validatePhone(formData.phone)) {
-      setError('전화번호를 010-XXXX-XXXX 형식으로 입력해주세요.');
+      setError(t('phoneFormatError'));
       return;
     }
 
@@ -86,12 +89,12 @@ function ProfilePageContent() {
       });
 
       await checkAuth();
-      setSuccess('프로필이 업데이트되었습니다.');
+      setSuccess(t('updateSuccess'));
       setIsEditing(false);
     } catch (err) {
       console.error('Profile update failed:', err);
       setError(
-        err instanceof Error ? err.message : '프로필 업데이트에 실패했습니다.'
+        err instanceof Error ? err.message : t('errorUpdateFailed')
       );
     } finally {
       setLoading(false);
@@ -104,20 +107,20 @@ function ProfilePageContent() {
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold gradient-text mb-2">프로필</h1>
-          <p className="text-muted-foreground">회원 정보를 확인하고 수정할 수 있습니다.</p>
+          <h1 className="text-3xl font-bold gradient-text mb-2">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('description')}</p>
         </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold">내 정보</h2>
-              <p className="text-sm text-muted-foreground">개인정보 관리</p>
+              <h2 className="text-xl font-semibold">{t('myInfo')}</h2>
+              <p className="text-sm text-muted-foreground">{t('personalInfo')}</p>
             </div>
             {!isEditing && (
               <Button onClick={handleEdit} variant="outline" size="sm">
                 <Edit2 className="w-4 h-4 mr-2" />
-                수정
+                {t('updateProfile')}
               </Button>
             )}
           </CardHeader>
@@ -138,7 +141,7 @@ function ProfilePageContent() {
               <div className="space-y-2">
                 <Label htmlFor="userId" className="flex items-center">
                   <User className="w-4 h-4 mr-2" />
-                  사용자 ID
+                  {t('userId')}
                 </Label>
                 <Input
                   id="userId"
@@ -151,7 +154,7 @@ function ProfilePageContent() {
               <div className="space-y-2">
                 <Label htmlFor="name" className="flex items-center">
                   <User className="w-4 h-4 mr-2" />
-                  이름
+                  {t('name')}
                 </Label>
                 <Input
                   id="name"
@@ -160,14 +163,14 @@ function ProfilePageContent() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   disabled={!isEditing || loading}
-                  placeholder="홍길동"
+                  placeholder={t('namePlaceholder')}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="flex items-center">
                   <Phone className="w-4 h-4 mr-2" />
-                  전화번호
+                  {t('phone')}
                 </Label>
                 <Input
                   id="phone"
@@ -175,7 +178,7 @@ function ProfilePageContent() {
                   value={formData.phone}
                   onChange={handlePhoneChange}
                   disabled={!isEditing || loading}
-                  placeholder="010-0000-0000"
+                  placeholder={t('phonePlaceholder')}
                   maxLength={13}
                 />
               </div>
@@ -189,7 +192,7 @@ function ProfilePageContent() {
                   className="flex-1"
                 >
                   <Check className="w-4 h-4 mr-2" />
-                  {loading ? '저장 중...' : '저장'}
+                  {loading ? t('saving') : tCommon('save')}
                 </Button>
                 <Button
                   onClick={handleCancel}
@@ -198,7 +201,7 @@ function ProfilePageContent() {
                   className="flex-1"
                 >
                   <X className="w-4 h-4 mr-2" />
-                  취소
+                  {tCommon('cancel')}
                 </Button>
               </div>
             )}

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useProjectStore } from "@/lib/store";
 import { Genre, Mood, ProjectTheme } from "@/types";
 import { ArrowRight, Music, Sparkles, Home } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const genres: Genre[] = [
   "발라드",
@@ -47,6 +48,8 @@ export default function ThemePage() {
   const router = useRouter();
   const { currentProject, updateProjectTheme } = useProjectStore();
   const songId = params.songId as string;
+  const t = useTranslations("theme");
+  const tWorkspace = useTranslations("workspace");
 
   const [selectedGenres, setSelectedGenres] = useState<Genre[]>([]);
   const [selectedMoods, setSelectedMoods] = useState<Mood[]>([]);
@@ -81,7 +84,7 @@ export default function ThemePage() {
   };
 
   const handleGoHome = () => {
-    if (confirm('홈으로 돌아가시겠습니까? 모든 작업 내용은 자동으로 저장됩니다.')) {
+    if (confirm(tWorkspace('confirmGoHome'))) {
       router.push('/');
     }
   };
@@ -120,16 +123,16 @@ export default function ThemePage() {
                   className="flex items-center gap-2"
                 >
                   <Home className="h-4 w-4" />
-                  홈으로
+                  {tWorkspace("home")}
                 </Button>
               </div>
             </div>
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-primary-glow to-accent bg-clip-text text-transparent">
-                곡 테마 설정
+                {t("title")}
               </h1>
               <p className="text-xl text-muted-foreground">
-                {currentProject.name}의 장르와 분위기를 설정해주세요
+                {t("subtitle")}
               </p>
             </div>
           </div>
@@ -141,17 +144,17 @@ export default function ThemePage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Music className="h-5 w-5 text-primary" />
-                    분석 결과
+                    {tWorkspace("analysisResult")}
                   </CardTitle>
                   <CardDescription>
-                    업로드된 MIDI 파일 분석 정보
+                    {tWorkspace("analysisDesc")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="p-3 bg-muted/30 rounded-lg backdrop-blur-sm">
                       <span className="text-muted-foreground block mb-1">
-                        파일명
+                        {tWorkspace("fileName")}
                       </span>
                       <p className="font-medium truncate">
                         {currentProject.midiAnalysis.fileName}
@@ -159,16 +162,16 @@ export default function ThemePage() {
                     </div>
                     <div className="p-3 bg-muted/30 rounded-lg backdrop-blur-sm">
                       <span className="text-muted-foreground block mb-1">
-                        길이
+                        {tWorkspace("duration")}
                       </span>
                       <p className="font-medium">
                         {Math.floor(currentProject.midiAnalysis.duration / 60)}
-                        분 {currentProject.midiAnalysis.duration % 60}초
+                        {tWorkspace("minutes")} {currentProject.midiAnalysis.duration % 60}{tWorkspace("seconds")}
                       </p>
                     </div>
                     <div className="p-3 bg-muted/30 rounded-lg backdrop-blur-sm">
                       <span className="text-muted-foreground block mb-1">
-                        템포
+                        {tWorkspace("tempo")}
                       </span>
                       <p className="font-medium">
                         {currentProject.midiAnalysis.tempo} BPM
@@ -176,7 +179,7 @@ export default function ThemePage() {
                     </div>
                     <div className="p-3 bg-muted/30 rounded-lg backdrop-blur-sm">
                       <span className="text-muted-foreground block mb-1">
-                        조성
+                        {tWorkspace("key")}
                       </span>
                       <p className="font-medium">
                         {currentProject.midiAnalysis.key}
@@ -186,7 +189,7 @@ export default function ThemePage() {
 
                   <div className="space-y-2">
                     <span className="text-muted-foreground text-sm">
-                      곡 구조
+                      {tWorkspace("structure")}
                     </span>
                     <div className="space-y-2">
                       {currentProject.midiAnalysis.structure.map(
@@ -197,7 +200,7 @@ export default function ThemePage() {
                           >
                             <span className="font-medium">{section.name}</span>
                             <Badge variant="outline">
-                              {section.syllableCount} 음절
+                              {section.syllableCount} {tWorkspace("syllables")}
                             </Badge>
                           </div>
                         )
@@ -215,9 +218,9 @@ export default function ThemePage() {
             >
               <Card className="card-hover border-primary/20">
                 <CardHeader>
-                  <CardTitle>장르 선택</CardTitle>
+                  <CardTitle>{t("genreLabel")}</CardTitle>
                   <CardDescription>
-                    곡에 어울리는 장르를 선택해주세요 (다중 선택 가능)
+                    {t("genrePlaceholder")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -231,7 +234,7 @@ export default function ThemePage() {
                         className="cursor-pointer transition-all duration-300 hover:scale-105"
                         onClick={() => toggleGenre(genre)}
                       >
-                        {genre}
+                        {t(`genres.${genre}`)}
                       </Badge>
                     ))}
                   </div>
@@ -240,9 +243,9 @@ export default function ThemePage() {
 
               <Card className="card-hover border-primary/20">
                 <CardHeader>
-                  <CardTitle>분위기 선택</CardTitle>
+                  <CardTitle>{t("moodLabel")}</CardTitle>
                   <CardDescription>
-                    원하는 가사의 분위기를 선택해주세요 (다중 선택 가능)
+                    {t("moodPlaceholder")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -256,7 +259,7 @@ export default function ThemePage() {
                         className="cursor-pointer transition-all duration-300 hover:scale-105"
                         onClick={() => toggleMood(mood)}
                       >
-                        {mood}
+                        {t(`moods.${mood}`)}
                       </Badge>
                     ))}
                   </div>
@@ -265,19 +268,19 @@ export default function ThemePage() {
 
               <Card className="card-hover border-primary/20">
                 <CardHeader>
-                  <CardTitle>키워드 (선택사항)</CardTitle>
+                  <CardTitle>{t("keywordsLabel")}</CardTitle>
                   <CardDescription>
-                    가사에 포함하고 싶은 키워드나 주제를 입력해주세요
+                    {t("keywordsPlaceholder")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Input
-                    placeholder="예: 사랑, 이별, 꿈, 희망 (쉼표로 구분)"
+                    placeholder={t("keywordsPlaceholder")}
                     value={keywords}
                     onChange={(e) => setKeywords(e.target.value)}
                   />
                   <Textarea
-                    placeholder="참고할 스타일이나 추가 요청사항이 있다면 자유롭게 입력해주세요"
+                    placeholder={t("customStylePlaceholder")}
                     value={customStyle}
                     onChange={(e) => setCustomStyle(e.target.value)}
                     rows={3}
@@ -292,7 +295,7 @@ export default function ThemePage() {
                 className="w-full"
               >
                 <span className="relative z-10 flex items-center">
-                  가사 제작 시작하기
+                  {t("next")}
                   <ArrowRight className="h-5 w-5 ml-2" />
                 </span>
               </Button>

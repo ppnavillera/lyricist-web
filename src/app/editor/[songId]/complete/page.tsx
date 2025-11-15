@@ -8,19 +8,35 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useProjectStore } from '@/lib/store';
 import { downloadAsFile, copyToClipboard, formatDate, exportToPDF } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 
 export default function CompletePage() {
+  const locale = useLocale();
+  const t = useTranslations('complete');
+  const tPdf = useTranslations('pdf');
+  const tTheme = useTranslations('theme');
+  const tWorkspace = useTranslations('workspace');
   const params = useParams();
   const router = useRouter();
   const { currentProject, resetProject } = useProjectStore();
   const [copySuccess, setCopySuccess] = useState(false);
 
+  // Helper function to translate genre/mood values
+  const translateValue = (value: string, type: 'genres' | 'moods'): string => {
+    try {
+      return tTheme(`${type}.${value}`);
+    } catch {
+      return value;
+    }
+  };
+
   if (!currentProject) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">프로젝트를 찾을 수 없습니다</h2>
-          <Button onClick={() => router.push('/')}>홈으로 돌아가기</Button>
+          <h2 className="text-xl font-semibold mb-2">{tWorkspace('noProject')}</h2>
+          <Button onClick={() => router.push('/')}>{tWorkspace('goHome')}</Button>
         </div>
       </div>
     );
@@ -37,24 +53,27 @@ export default function CompletePage() {
 
   const generateDetailedExport = () => {
     const lyrics = generateFullLyrics();
-    const info = `프로젝트: ${currentProject.name}
-파일: ${currentProject.midiAnalysis.fileName}
-생성일: ${formatDate(currentProject.midiAnalysis.createdAt)}
-완료일: ${currentProject.completedAt ? formatDate(currentProject.completedAt) : '진행중'}
+    const translatedGenres = currentProject.theme.genres.map(g => translateValue(g, 'genres'));
+    const translatedMoods = currentProject.theme.moods.map(m => translateValue(m, 'moods'));
 
-장르: ${currentProject.theme.genres.join(', ')}
-분위기: ${currentProject.theme.moods.join(', ')}
-${currentProject.theme.keywords.length > 0 ? `키워드: ${currentProject.theme.keywords.join(', ')}` : ''}
+    const info = `${t('projectName')}: ${currentProject.name}
+${t('midiFile')}: ${currentProject.midiAnalysis.fileName}
+${t('createdAt')}: ${formatDate(currentProject.midiAnalysis.createdAt, locale)}
+${t('completedAt')}: ${currentProject.completedAt ? formatDate(currentProject.completedAt, locale) : t('justNow')}
 
-총 음절 수: ${totalSyllables}
-총 ${completedStructures.length}개 구간
+${t('genre')}: ${translatedGenres.join(', ')}
+${t('mood')}: ${translatedMoods.join(', ')}
+${currentProject.theme.keywords.length > 0 ? `${t('keywords')}: ${currentProject.theme.keywords.join(', ')}` : ''}
 
-=== 가사 ===
+${t('totalSyllables')}: ${totalSyllables}
+${t('completedSections')}: ${completedStructures.length}
+
+=== ${t('completedLyrics')} ===
 
 ${lyrics}
 
-Generated with Lyricist AI`;
-    
+${tPdf('footer')}`;
+
     return info;
   };
 
@@ -74,13 +93,16 @@ Generated with Lyricist AI`;
   };
 
   const handleDownloadPdf = async () => {
+    const translatedGenres = currentProject.theme.genres.map(g => translateValue(g, 'genres'));
+    const translatedMoods = currentProject.theme.moods.map(m => translateValue(m, 'moods'));
+
     await exportToPDF({
       projectName: currentProject.name,
       fileName: currentProject.midiAnalysis.fileName,
-      createdAt: formatDate(currentProject.midiAnalysis.createdAt),
-      completedAt: currentProject.completedAt ? formatDate(currentProject.completedAt) : undefined,
-      genres: currentProject.theme.genres,
-      moods: currentProject.theme.moods,
+      createdAt: formatDate(currentProject.midiAnalysis.createdAt, locale),
+      completedAt: currentProject.completedAt ? formatDate(currentProject.completedAt, locale) : undefined,
+      genres: translatedGenres,
+      moods: translatedMoods,
       keywords: currentProject.theme.keywords,
       totalSyllables,
       structures: completedStructures.map(s => ({
@@ -88,7 +110,22 @@ Generated with Lyricist AI`;
         lyrics: s.lyrics || '',
         syllableCount: s.adjustedSyllableCount || s.syllableCount,
       })),
-    }, `${currentProject.name}_lyrics.pdf`);
+    }, `${currentProject.name}_lyrics.pdf`, {
+      title: tPdf('title'),
+      project: tPdf('project'),
+      file: tPdf('file'),
+      createdAt: tPdf('createdAt'),
+      completedAt: tPdf('completedAt'),
+      inProgress: tPdf('inProgress'),
+      genre: tPdf('genre'),
+      mood: tPdf('mood'),
+      keywords: tPdf('keywords'),
+      totalSyllables: tPdf('totalSyllables'),
+      sectionsCount: tPdf('sectionsCount', { count: completedStructures.length }),
+      lyricsHeader: tPdf('lyricsHeader'),
+      syllables: tPdf('syllables'),
+      footer: tPdf('footer'),
+    });
   };
 
   const handleNewProject = () => {
@@ -103,14 +140,14 @@ Generated with Lyricist AI`;
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">🎉 프로젝트 완료!</h1>
+              <h1 className="text-3xl font-bold mb-2">🎉 {t('congratulations')}</h1>
               <p className="text-muted-foreground">
-                {currentProject.name}의 가사 제작이 완료되었습니다
+                {t('projectCompleted', { projectName: currentProject.name })}
               </p>
             </div>
             <Button variant="outline" onClick={handleNewProject}>
               <Home className="h-4 w-4 mr-2" />
-              새 프로젝트
+              {t('newProject')}
             </Button>
           </div>
         </div>
@@ -124,10 +161,10 @@ Generated with Lyricist AI`;
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Music className="h-5 w-5" />
-                  완성된 가사
+                  {t('completedLyrics')}
                 </CardTitle>
                 <CardDescription>
-                  모든 구간의 가사가 완성되었습니다
+                  {t('allPartsCompleted')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -137,7 +174,7 @@ Generated with Lyricist AI`;
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{structure.name}</Badge>
                         <span className="text-xs text-muted-foreground">
-                          {structure.adjustedSyllableCount || structure.syllableCount} 음절
+                          {structure.adjustedSyllableCount || structure.syllableCount} {tWorkspace('syllables')}
                         </span>
                       </div>
                       <div className="p-4 bg-muted/20 rounded-lg whitespace-pre-line text-sm leading-relaxed">
@@ -154,10 +191,10 @@ Generated with Lyricist AI`;
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Download className="h-5 w-5" />
-                  내보내기
+                  {t('export')}
                 </CardTitle>
                 <CardDescription>
-                  완성된 가사를 다양한 형태로 저장하세요
+                  {t('exportDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -166,9 +203,9 @@ Generated with Lyricist AI`;
                     <div className="flex flex-col items-center gap-2">
                       <Copy className="h-6 w-6" />
                       <div className="text-center">
-                        <div className="font-medium">클립보드 복사</div>
+                        <div className="font-medium">{t('copyLyrics')}</div>
                         <div className="text-xs text-muted-foreground">
-                          {copySuccess ? '복사 완료!' : '가사만 복사'}
+                          {copySuccess ? t('copied') : t('copyLyricsOnly')}
                         </div>
                       </div>
                     </div>
@@ -178,8 +215,8 @@ Generated with Lyricist AI`;
                     <div className="flex flex-col items-center gap-2">
                       <FileText className="h-6 w-6" />
                       <div className="text-center">
-                        <div className="font-medium">TXT 다운로드</div>
-                        <div className="text-xs text-muted-foreground">프로젝트 정보 포함</div>
+                        <div className="font-medium">{t('downloadTxt')}</div>
+                        <div className="text-xs text-muted-foreground">{t('downloadTxtDescription')}</div>
                       </div>
                     </div>
                   </Button>
@@ -188,8 +225,8 @@ Generated with Lyricist AI`;
                     <div className="flex flex-col items-center gap-2">
                       <FileType className="h-6 w-6" />
                       <div className="text-center">
-                        <div className="font-medium">PDF 다운로드</div>
-                        <div className="text-xs text-muted-foreground">전문적인 문서</div>
+                        <div className="font-medium">{t('downloadPdf')}</div>
+                        <div className="text-xs text-muted-foreground">{t('downloadPdfDescription')}</div>
                       </div>
                     </div>
                   </Button>
@@ -202,43 +239,43 @@ Generated with Lyricist AI`;
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>프로젝트 정보</CardTitle>
+                <CardTitle>{t('projectInfo')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div>
-                    <span className="text-sm text-muted-foreground">프로젝트명</span>
+                    <span className="text-sm text-muted-foreground">{t('projectName')}</span>
                     <p className="font-medium">{currentProject.name}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">MIDI 파일</span>
+                    <span className="text-sm text-muted-foreground">{t('midiFile')}</span>
                     <p className="font-medium">{currentProject.midiAnalysis.fileName}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">완료일</span>
+                    <span className="text-sm text-muted-foreground">{t('completedAt')}</span>
                     <p className="font-medium">
-                      {currentProject.completedAt ? formatDate(currentProject.completedAt) : '방금 전'}
+                      {currentProject.completedAt ? formatDate(currentProject.completedAt, locale) : t('justNow')}
                     </p>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-sm text-muted-foreground">장르</span>
+                  <span className="text-sm text-muted-foreground">{t('genre')}</span>
                   <div className="flex flex-wrap gap-1">
                     {currentProject.theme.genres.map((genre, index) => (
                       <Badge key={index} variant="secondary" className="text-xs">
-                        {genre}
+                        {translateValue(genre, 'genres')}
                       </Badge>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-sm text-muted-foreground">분위기</span>
+                  <span className="text-sm text-muted-foreground">{t('mood')}</span>
                   <div className="flex flex-wrap gap-1">
                     {currentProject.theme.moods.map((mood, index) => (
                       <Badge key={index} variant="outline" className="text-xs">
-                        {mood}
+                        {translateValue(mood, 'moods')}
                       </Badge>
                     ))}
                   </div>
@@ -246,7 +283,7 @@ Generated with Lyricist AI`;
 
                 {currentProject.theme.keywords.length > 0 && (
                   <div className="space-y-2">
-                    <span className="text-sm text-muted-foreground">키워드</span>
+                    <span className="text-sm text-muted-foreground">{t('keywords')}</span>
                     <p className="text-sm">{currentProject.theme.keywords.join(', ')}</p>
                   </div>
                 )}
@@ -255,24 +292,24 @@ Generated with Lyricist AI`;
 
             <Card>
               <CardHeader>
-                <CardTitle>통계</CardTitle>
+                <CardTitle>{t('statistics')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-primary">{completedStructures.length}</div>
-                    <div className="text-xs text-muted-foreground">완성된 구간</div>
+                    <div className="text-xs text-muted-foreground">{t('completedSections')}</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-primary">{totalSyllables}</div>
-                    <div className="text-xs text-muted-foreground">총 음절 수</div>
+                    <div className="text-xs text-muted-foreground">{t('totalSyllables')}</div>
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-primary">
-                    {Math.floor(currentProject.midiAnalysis.duration / 60)}분 {currentProject.midiAnalysis.duration % 60}초
+                    {Math.floor(currentProject.midiAnalysis.duration / 60)}{tWorkspace('minutes')} {currentProject.midiAnalysis.duration % 60}{tWorkspace('seconds')}
                   </div>
-                  <div className="text-xs text-muted-foreground">곡 길이</div>
+                  <div className="text-xs text-muted-foreground">{t('songLength')}</div>
                 </div>
               </CardContent>
             </Card>

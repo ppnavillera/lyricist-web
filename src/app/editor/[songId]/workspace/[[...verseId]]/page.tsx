@@ -6,15 +6,17 @@ import { Home, Save } from 'lucide-react';
 import { useProjectStore } from '@/lib/store';
 import LyricsEditor from '@/components/lyrics/LyricsEditor';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export default function WorkspacePage() {
   const params = useParams();
   const router = useRouter();
   const { currentProject } = useProjectStore();
   const verseId = params.verseId?.[0];
+  const t = useTranslations('workspace');
 
   const handleGoHome = () => {
-    if (confirm('홈으로 돌아가시겠습니까? 모든 작업 내용은 자동으로 저장됩니다.')) {
+    if (confirm(t('confirmGoHome'))) {
       router.push('/');
     }
   };
@@ -23,10 +25,10 @@ export default function WorkspacePage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">프로젝트를 불러올 수 없습니다</h2>
-          <p className="text-muted-foreground">홈페이지로 돌아가서 새로운 프로젝트를 시작하세요.</p>
+          <h2 className="text-xl font-semibold mb-2">{t('noProject')}</h2>
+          <p className="text-muted-foreground">{t('noProjectDesc')}</p>
           <Link href="/" className="mt-4 inline-block text-primary hover:underline">
-            홈으로 이동
+            {t('goHome')}
           </Link>
         </div>
       </div>
@@ -50,8 +52,8 @@ export default function WorkspacePage() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">작업할 파트를 선택해주세요</h2>
-          <p className="text-muted-foreground">왼쪽 사이드바에서 편집할 파트를 선택하세요.</p>
+          <h2 className="text-xl font-semibold mb-2">{t('selectPart')}</h2>
+          <p className="text-muted-foreground">{t('selectPartDesc')}</p>
         </div>
       </div>
     );
@@ -65,7 +67,7 @@ export default function WorkspacePage() {
           <div>
             <h2 className="text-lg font-semibold">{currentStructure.name}</h2>
             <p className="text-xs text-muted-foreground">
-              {currentProject.name} · 자동 저장됨
+              {currentProject.name} · {t('autoSaved')}
             </p>
           </div>
           <Button
@@ -75,7 +77,7 @@ export default function WorkspacePage() {
             className="flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
-            홈으로
+            {t('goHome')}
           </Button>
         </div>
       </div>
