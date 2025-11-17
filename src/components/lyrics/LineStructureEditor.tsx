@@ -78,7 +78,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     setLines(newLines);
   };
 
-  const applyPreset = (preset: { name: string; lines: number[] }) => {
+  const applyPreset = (preset: { nameKey: string; lines: number[] }) => {
     if (preset.lines.reduce((sum, s) => sum + s, 0) !== totalSyllables) {
       // Adjust preset to match total syllables
       const scale = totalSyllables / preset.lines.reduce((sum, s) => sum + s, 0);
