@@ -32,7 +32,6 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     // Default: 1 line with all syllables
     return [{
       syllables: totalSyllables,
-      description: t('lineDescriptionPlaceholder', { number: 1 }),
     }];
   });
 
@@ -52,11 +51,6 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     setLines(newLines);
   };
 
-  const updateLineDescription = (index: number, description: string) => {
-    const newLines = [...lines];
-    newLines[index] = { ...newLines[index], description };
-    setLines(newLines);
-  };
 
   const addLine = () => {
     if (lines.length >= 10) return;
@@ -71,8 +65,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
     }
 
     newLines.push({
-      syllables: 1,
-      description: t('lineDescriptionPlaceholder', { number: lines.length + 1 })
+      syllables: 1
     });
 
     setLines(newLines);
@@ -99,13 +92,11 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
       }
       
       setLines(adjustedLines.map((syllables, i) => ({
-        syllables: Math.max(1, syllables),
-        description: t('lineDescriptionPlaceholder', { number: i + 1 }),
+        syllables: Math.max(1, syllables)
       })));
     } else {
       setLines(preset.lines.map((syllables, i) => ({
-        syllables,
-        description: t('lineDescriptionPlaceholder', { number: i + 1 }),
+        syllables
       })));
     }
   };
@@ -113,10 +104,9 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
   const resetToEqual = () => {
     const syllablesPerLine = Math.floor(totalSyllables / lines.length);
     const remainder = totalSyllables % lines.length;
-    
+
     setLines(lines.map((_, i) => ({
-      syllables: syllablesPerLine + (i < remainder ? 1 : 0),
-      description: t('lineDescriptionPlaceholder', { number: i + 1 }),
+      syllables: syllablesPerLine + (i < remainder ? 1 : 0)
     })));
   };
 
@@ -198,16 +188,11 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
                 <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full text-sm font-medium">
                   {index + 1}
                 </div>
-                
-                <div className="flex-1">
-                  <Input
-                    placeholder={t('lineDescriptionPlaceholder', { number: index + 1 })}
-                    value={line.description || ''}
-                    onChange={(e) => updateLineDescription(index, e.target.value)}
-                    className="text-sm"
-                  />
+
+                <div className="flex-1 text-sm text-muted-foreground">
+                  {t('lineNumber', { number: index + 1 })}
                 </div>
-                
+
                 <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
@@ -218,11 +203,11 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
-                  
+
                   <div className="w-16 text-center">
                     <span className="text-sm font-medium">{line.syllables}</span>
                   </div>
-                  
+
                   <Button
                     variant="outline"
                     size="icon"
@@ -233,7 +218,7 @@ export default function LineStructureEditor({ totalSyllables, initialLineStructu
                     <Plus className="h-3 w-3" />
                   </Button>
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="icon"

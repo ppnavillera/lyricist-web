@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const prompt = generatePrompt(syllableCount, context);
 
@@ -55,7 +55,6 @@ function generatePrompt(
   context?: {
     previousLines?: string[];
     theme?: { genres?: string[]; moods?: string[]; keywords?: string[] };
-    description?: string;
   }
 ): string {
   let prompt = `한국어로 정확히 ${syllableCount}글자로 된 노래 가사를 만들어 주세요.
@@ -94,10 +93,6 @@ ${syllableCount}부터 1까지 각 숫자 k에 대해 다음을 수행합니다:
       if (keywords && keywords.length > 0) {
         prompt += `\n키워드: ${keywords.join(", ")}`;
       }
-    }
-
-    if (context.description) {
-      prompt += `\n\n줄 설명: ${context.description}`;
     }
   }
 
